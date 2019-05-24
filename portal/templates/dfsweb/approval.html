@@ -1,0 +1,223 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    <title>文件权限审批</title>
+{% endblock %}
+
+{#{% block custom_css %}#}
+{#<link href="/static/css/jasny-bootstrap.min.css" rel="stylesheet" type="text/css" />#}
+{#    <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css" />#}
+{#    <link href="/static/css/jquery.datatables.min.css" rel="stylesheet" type="text/css" />#}
+{#    <link href="/static/css/responsive.bootstrap.min.css" rel="stylesheet" type="text/css" />#}
+{#    <link href="/static/css/simple-line-icons.css" rel="stylesheet">#}
+{#    <link href="/static/css/font-awesome.min.css" rel="stylesheet">#}
+{#    <link rel="stylesheet" href="/static/css/nanoscroller.css">#}
+{#    <link href="/static/css/style.css" rel="stylesheet">#}
+{#{% endblock %}#}
+
+{% block content %}
+
+    <!--page header start-->
+    <div class="page-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4>文件权限审批</h4>
+                    </div>
+                    <div class="col-sm-6 text-right">
+                        <button type="button"  class="btn btn-danger btn-border btn-rounded" onclick="allunapproval()" >一键审批不同意</button>
+                        <button type="button"  class="btn btn-primary btn-border btn-rounded" onclick="allapproval()" >一键审批同意</button>
+{#                        <ol class="breadcrumb">#}
+{#                            <li><a href="javascript: void(0);"><i class="fa fa-home"></i></a></li>#}
+{#                            <li>pages</li>#}
+{#                            <li>Forms</li>#}
+{#                            <li>Basic</li>#}
+{#                        </ol>#}
+                    </div>
+                </div>
+            </div>
+    <!--page header end-->
+    <!--start page content-->
+    <div class="row">
+                <div class="col-sm-12">
+                    <h5  style="color: #23b7e5">请严肃对待权限审批工作，以避免风险问题的发生！</h5>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                        <table id="datatable1" class="table table-striped dt-responsive nowrap table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        <input type="checkbox" class="group-checkable" data-set="#temptable .checkboxes" id="tempcheckbox">
+                                                    </th>
+                                                    <th>
+                                                        ID
+                                                    </th>
+{#                                                    <th>#}
+{#                                                        <strong>权限申请人账号</strong>#}
+{#                                                    </th>#}
+                                                    <th>
+                                                        <strong>权限使用人账号</strong>
+                                                    </th>
+                                                    <th>
+                                                        <strong>权限使用人</strong>
+                                                    </th>
+                                                    <th>
+                                                        <strong>申请权限</strong>
+                                                    </th>
+                                                    <th >
+                                                        <strong>申请时间</strong>
+                                                    </th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% if approvelists != '' %}
+                                               {% for approvelist in approvelists %}
+                                                <tr><td><input type="checkbox" class="checkboxes"></td>
+                                               <td>{{  approvelist.id}}</td>
+{#                                               <td>{{ approvelist.authority_applicant }}</td>#}
+                                               <td>{{ approvelist.username }}</td>
+                                               <td>{{ approvelist.displayName }}</td>
+                                               <td>{{ approvelist.group_name }}</td>
+                                               <td>{{  approvelist.submit_time|date:"Y-m-d H:i:s"}}</td>
+                                           </tr>
+                                               {% endfor %}
+                                           {% endif %}
+                                            </tbody>
+                                        </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </div>
+
+    <!--end page content-->
+
+{% endblock %}
+
+{% block custom_js %}
+{#    <script src="/static/js/jquery.min.js"></script>#}
+{#    <script src="/static/js/bootstrap.min.js"></script>#}
+{#     <script src="/static/js/jquery.datatables.min.js"></script>#}
+{#<script src="/static/js/datatables.responsive.min.js"></script>#}
+{#    <script src="/static/js/jasny-bootstrap.min.js"></script>#}
+    <script>
+
+    function allapproval(){
+        var firstcelllists = $(".checkboxes:checkbox:checked").map(function () {
+                    return $(this).parent().next('td').text();
+                }).get().join(";");
+        if(firstcelllists.length == 0) {
+            swal("请选择一行审批单！");
+          }
+        else if(firstcelllists!=0){
+            swal({
+                    title: "你确定一键同意？",
+{#                    text: "关闭后兼职人员将无法使用",#}
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    closeOnConfirm: false
+                },
+            function(){
+                $.ajax({
+                        url:{% url "allsucapproval" %},
+                        type:'POST',
+                        dataType:'json',
+                        data:{'firstcelllists':firstcelllists},
+                        success:function(data,status) {
+                            if (status == 'success') {
+                                if (data['status'] == 1) {
+                                    swal({
+                                                title: "审批同意！",
+                                                //text:"账号已经成功关闭！",
+                                                type: "success",
+                                                showConfirmButton: "true",
+                                                confirmButtonText: "好的",
+                                                animation: "slide-from-top"
+                                            },
+                                            function () {
+                                                window.location.href = '/approval/';
+                                            })
+                                }
+                                else {
+                                    swal("审批失败！");
+                                }
+                            }
+                        }
+                    });
+                });
+
+            }
+    }
+    function allunapproval(){
+        var str = $(".checkboxes:checkbox:checked").map(function () {
+                    return $(this).parent().next('td').text();
+                }).get().join(";");
+        var firstcelllists = str;
+        if(firstcelllists.length == 0) {
+            swal("请选择一行审批单！");
+          }
+        else if(firstcelllists!=0){
+            swal({
+                    title: "你确定一键不同意？",
+{#                    text: "关闭后兼职人员将无法使用",#}
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    closeOnConfirm: false
+                },
+            function(){
+                $.ajax({
+                        url:{% url "unallapproval" %},
+                        type:'POST',
+                        dataType:'json',
+                        data:{'firstcelllists':firstcelllists},
+                        success:function(data,status) {
+                            if (status == 'success') {
+                                if (data['status'] == 1) {
+                                    swal({
+                                                title: "审批不同意！",
+                                                //text:"账号已经成功关闭！",
+                                                type: "success",
+                                                showConfirmButton: "true",
+                                                confirmButtonText: "好的",
+                                                animation: "slide-from-top"
+                                            },
+                                            function () {
+                                                window.location.href = '/approval/';
+                                            })
+                                }
+                                else {
+                                    swal("审批失败！");
+                                }
+                            }
+                        }
+                    });
+                });
+        };
+
+    }
+
+    $("#tempcheckbox").click(function(){
+        if(this.checked) {
+            $("input[type=checkbox][class=checkboxes]").prop("checked", $(this).is(":checked"));
+            $.uniform.update();
+        }
+        else {
+             $("input[type=checkbox][class=checkboxes]").prop("checked", false);
+             $.uniform.update();
+
+        }
+
+    });
+
+    </script>
+
+{% endblock %}

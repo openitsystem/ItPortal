@@ -1,0 +1,128 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    <title>密码修改</title>
+{% endblock %}
+
+{% block custom_css %}
+
+    <link href="/static/easyfrom/easyform.css" rel="stylesheet" type="text/css">
+    <link href="/static/sweetalert/sweetalert.css" rel="stylesheet">
+
+    <!--template css-->
+{% endblock %}
+
+{% block content %}
+
+    <section >
+        <h1 style='text-align: center;margin-top: 30px' class="text-indigo"> 修改开机(邮箱)密码</h1>
+        <div class="col-md-12" style="margin-top: 30px;">
+            <div class="col-md-7">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span aria-hidden="true" class="icon-settings"></span>
+                        修改开机(邮箱)密码 :
+                    </div>
+                    <div class="panel-body">
+                        <form class="form-horizontal" id="pwdform" method="post" action="/userpwdchange/" style="margin-top: 15px">
+                            <div class="form-group">
+                                <label class="col-sm-2 col-sm-offset-1 control-label" style="margin-top: 5px">邮箱地址:</label>
+                                <div class="col-sm-7"><input type="text" class="form-control" data-easyform="email;" name="email" readonly  value="{{ mailaddress }}" data-message="邮箱地址不存在，无法修改"  data-easytip="class:easy-red;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 col-sm-offset-1 control-label"  style="margin-top: 5px">开机账号:</label>
+                                <div class="col-sm-7"><input type="text" name="adaccount" class="form-control" readonly="" value="{{ username }}"></div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 col-sm-offset-1 control-label" style="margin-top: 10px">新密码:</label>
+                                <div class="col-sm-7"><input name="psw1" class="form-control"  type="password" id="psw1" data-easyform="{{ tab.passwordlength }};real-time" data-message="密码不满足复杂度规则" data-easytip="class:easy-red;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 col-sm-offset-1 control-label" style="margin-top: 5px">密码确认:</label>
+                                <div class="col-sm-7"><input name="psw2" class="form-control"  type="password" id="psw2" data-easyform="equal:#psw1;real-time" data-message="两次密码输入要一致" data-easytip="class:easy-red;">
+                                    <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 请再次输入您的密码</span></div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-offset-5 col-lg-10">
+                                    <input class="btn btn-primary" id="sub" value="提  交" type="submit" >
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="panel-footer">
+                        IT 开放平台
+                    </div>
+                </div>
+            </div><!--col-md-6-->
+            <div class="col-md-5">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span aria-hidden="true" class="icon-heart"></span>
+                        密码规则:
+                    </div>
+                    <div class="panel-body" style="font-size: large">
+                        <ul >
+                            <li>不能包含用户的帐户名，不能包含用户姓名中超过两个连续字符的部分</li>
+                            <br>
+                            <li>不能和前四次密码重复</li>
+                            <br>
+                            <li>{{ tab.pwdtips }} </li>
+                            <br>
+                            <li>包含以下四类字符中的三类字符:
+                                <ul>
+                                    <li>英文大写字母(A 到 Z)</li>
+                                    <li>英文小写字母(a 到 z)</li>
+                                    <li>10 个基本数字(0 到 9)</li>
+                                    <li>非字母字符(例如 !、$、#、%)</li>
+                                </ul>
+                            </li>
+                            <br>
+                            <li> 在更改或创建密码时执行复杂性要求 </li>
+                        </ul></div>
+                </div>
+            </div><!--col-md-6-->
+        </div>
+    </section>
+{% endblock %}
+
+{% block custom_js %}
+    <script src="/static/easyfrom/easyform.js"></script>
+    <script src="/static/sweetalert/sweetalert.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script>
+        $(document).ready(function ()
+        {
+            $('#pwdform').easyform();
+        });
+        $(function () {
+            var options = {
+                dataType:"json",
+                async:true,
+                success:function (data) {
+                    if(data["isSuccess"]){
+                        swal({
+                                title:"密码修改成功",
+                                text:'',
+                                type:"success",
+                                showConfirmButton:"true",
+                                confirmButtonText:"好的",
+                                animation:"slide-from-top"
+                            },
+                            function () {
+                                window.location.reload();
+                            }
+                        )
+                    }
+                    else{
+                        swal(data['message']['message']);
+                    }
+                },
+                error:function (e) {
+                    swal("出错了，请联系 IT 处理");
+                }
+            };
+            $("#pwdform").ajaxForm(options);
+        })
+    </script>
+
+{% endblock %}

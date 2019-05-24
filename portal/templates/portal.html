@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if tltile == None or tltile == False%}IT开放平台 {% else %} {{ tltile.title }}{% endif %}</title>
+
+    <link href="/static/css/ITscrollbar.css" rel="stylesheet" type="text/css">
+    <link href="/static/css/ITindex.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="/static/css/loginmodal.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/index.css">
+
+</head>
+<body>
+
+<div class="modal fade" id="loginModal" style="display:none;">
+    <div class="modal-dialog modal-sm" style="width:540px;">
+        <div class="modal-content" style="border:none;">
+            <div class="col-left"></div>
+            <div class="col-right">
+                <div class="modal-header">
+                    <button type="button" id="login_close" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="loginModalLabel" style="font-size: 18px;">请登录</h4>
+                </div>
+                <div class="modal-body">
+                    <section class="box-login v5-input-txt" id="box-login">
+                        <form id="login_form" class="m-t"  onsubmit="return loginuser()" method="post" autocomplete="off">
+                            <ul>
+                                <li class="form-group"><input class="form-control" id="Username" maxlength="50" name="Username" placeholder="请输入邮箱账号" type="text"></li>
+                                <li class="form-group"><input class="form-control" id="Password" name="Password" placeholder="请输入密码" type="password"></li>
+                            </ul>
+                            <div class="checkbox" id="restatus" style="display:none;">
+                                <div class="errorinfo-field">
+                                    <p style="color:red; font-size:10px" id="spantips" class="warn"></p>
+                                </div>
+                            </div>
+                            <button id="login_btn" type="submit" class="btn btn-micv5 btn-block globalLogin">登录</button>
+                        </form>
+
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="container">
+    <div class="nav">
+        <h3 style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;text-align: center" title="{{ tltile.title }}">{% if tltile == None or tltile == False%}IT开放平台 {% else %} {{ tltile.title }}{% endif %}</h3>
+        <div class="nav-list clearfix">
+            <ul class="list clearfix">
+                <li data-code="02" class="active"><a>IT功能</a></li>
+                <li id="iddirector"  style="display: none" class=""><a href="/review/" >审批</a>
+                    <span id="spancount" style="border-radius: 50px;line-height: 1;background-color: #FF7043;font-size: 12px;padding: 2px 7px 2px 6px;color: white;text-align: center"></span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    {% if username %}
+        <div class="user-info">
+            <p class="user-shrink" style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;text-align: center">
+                <span title="{{ displayname }}">{{ displayname }}</span>
+                <i class="drop-doe"></i>
+            </p>
+            <ul id="myMenus" class="" >
+                <li><a  href="/referuser/" >我的申请</a></li>
+                <li><a  href="/publicmailmanagement/" >公共邮箱管理</a></li>
+                <li><a  href="/mailgroupmanagement/">邮箱群组管理</a></li>
+                <li><a href="/logout/">退出</a></li>
+            </ul>
+        </div>
+    {% else %}
+        <div class="user-info" style="width: 80px;">
+            <p onclick="userlog()" class="user-shrink" style="text-align: center">
+                <a onclick="userlog()">登录</a>
+            </p>
+        </div>
+    {% endif %}
+    <div class="wrapper">
+        <div style="top: 0px;">
+            <div class="content-wrapper">
+                <footer>
+                    <div class="clearfix">
+                        <span>© powered by {% if tltile == None or tltile == False%}IT运维 {% else %} {{ tltile.heard }}{% endif %}</span>
+                    </div>
+                </footer>
+                <div class="content">
+                    <div class="panel"><h3><img src="/static/images/net.png">网络权限</h3>
+                        <ul class="one-line clearfix">
+                            <li>
+                                <a  href="/access/">上网权限申请</a>
+                            </li>
+                            <li>
+                                <a  href="/access/?wifi">无线权限申请</a>
+                            </li>
+                            <li>
+                                <a  href="/access/?vpn">VPN权限申请</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="panel"><h3><img src="/static/images/qitaxitongicon.png">邮箱权限</h3>
+                        <ul class="one-line clearfix">
+                            <li>
+                                <a  href="/findmail/">邮箱信息查询</a>
+                            </li>
+                            <li >
+                                <a href="/applypublicmail/"  >新建公共邮箱</a>
+                            </li>
+                            <li>
+                                <a href="/applymailgroup/">新建邮箱群组</a>
+                            <li>
+                                <a href="/unlockmail/">手机邮箱解除阻止</a></li>
+                            <li >
+                                <a href="/applymailpermission/">邮箱群组权限申请</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="panel collect-wrap" id ="dfsli" style="display: none">
+                        <h3><img src="/static/images/collect-icon.png" style="margin-top: 5px">文件夹权限</h3>
+                        <ul class=" clearfix">
+                            <li ><a href="/dfsapply/">文件夹权限申请</a></li>
+                            <li id = 'approval' style="display: none"><a href="/approval/">文件权限审批</a>
+                                <span id="approval_count" style="border-radius: 50px;line-height: 1;background-color: #FF7043;font-size: 12px;padding: 2px 7px 2px 6px;color: white;text-align: center"></span>
+                            </li>
+                            <li id = 'relationapproval' style="display: none"><a  href="/relationapproval/">文件管理员审批</a>
+                                <span style="border-radius: 50px;line-height: 1;background-color: #FF7043;font-size: 12px;padding: 2px 7px 2px 6px;color: white;text-align: center" id="relationapproval_count"></span>
+                            </li>
+                            <li id = 'file_dfs_t' style="display: none"><a  href="/relationmanager/">文件夹权限管理</a></li>
+                            <li id = 'relationconfig' style="display: none"><a  href="/relationconfig/">修改文件夹管理员</a></li>
+                        </ul>
+                    </div>
+                    <div class="panel collect-wrap">
+                        <h3><img src="/static/images/kaifaicon.png" style="margin-top: 5px">密码修改重置 </h3>
+                        <ul class=" clearfix">
+                            <li >
+                                <a href="/changepwd/"  >修改开机（邮箱）密码</a>
+                            </li>
+                            <li >
+                                <a href="/resetpwd/" >重置开机（邮箱）密码</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="panel collect-wrap">
+                        <h3><img src="/static/images/iticon.png" style="margin-top: 5px">兼职账号 </h3>
+                        <ul class=" clearfix">
+                            <li >
+                                <a href="/jzaccountapp/" style="display: none" id = "sqhtml">兼职账号申请</a>
+                            </li>
+                            <li>
+                                <a href="/Effectiveaccount/" id = "glhtml" style="display: none" >有效账号管理</a>
+                            </li>
+                            <li>
+                                <a  href="/AccountManagement/" id="jzadminhtml" style="display: none">管理员后台</a>
+                            </li>
+                            <li>
+                                <a  href="/AccountAddManagement/" id="addadminhtml" style="display: none">申请权限管理</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="panel collect-wrap">
+                        <h3><img src="/static/images/gongjuicon.png" style="margin-top: 5px">IT工具 </h3>
+                        <ul class=" clearfix">
+                            <li >
+                                <a href="/userquery/" >AD账号查询</a>
+                            </li>
+                            <li >
+                                <a href="/userunlock/" id="userunlockd" style="display: none">账号解锁</a>
+                            </li>
+                            <li >
+                                <a href="/addPwdNoLock/" id="addPwdNoLockd" style="display: none" >账号防锁定</a>
+                            </li>
+                            <li >
+                                <a href="/adresetpwd/" id="adresetpwd" style="display: none" >重置密码</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="scrollbar" style="display: none; padding: 3px 0;">
+            <div>
+                <span style="padding: 4px 0;"></span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/ITscrollbar.js"></script>
+<script src="/static/js/ITindex.js"></script>
+<script type="text/javascript" src="/static/js/modal.js"></script>
+<script type="text/javascript" src="/static/js/script.js"></script>
+
+<script>
+    function userlog() {
+        $('#loginModal').modal({
+            keyboard: true,
+            backdrop:false
+        });
+    }
+    function loginuser() {
+        var Username = document.getElementById("Username").value;
+        var Password = document.getElementById("Password").value;
+        $.ajax({
+            url:{% url "userlogin" %},
+            type:'POST',
+            dataType:'json',
+            data:{"Username":Username,"Password":Password},
+            success:function (data) {
+                if (data['status']=='errorpasswd'){
+                    document.getElementById("restatus").style.display = "block";
+                    document.getElementById('spantips').innerHTML='密码错误';
+                    return false
+                }
+                else if(data['status']=='nopassword'){
+                    document.getElementById("restatus").style.display = "block";
+                    document.getElementById('spantips').innerHTML='请输入密码';
+                    return false
+                }
+                else if(data['status']=='nouser'){
+                    document.getElementById("restatus").style.display = "block";
+                    document.getElementById('spantips').innerHTML='请输入用户名';
+                    return false
+                }
+                else if(data['status']=='success'){
+                    window.location.href=data['backurl']
+                }
+                else if(data['status']=='error'){
+                    document.getElementById("restatus").style.display = "block";
+                    document.getElementById('spantips').innerHTML='登录出现异常';
+                    return false
+                }
+            }
+        });
+        return false
+    }
+    $(function() {
+        $.ajax({
+            url:{% url "dfs_permission" %},
+            type:'POST',
+            dataType:'json',
+            {#                        data:{'app_level1_path_list':JSON.stringify(app_level1_path_list)},#}
+            success:function(data){
+                if (data['dfs_switch'] !="1"){
+                    document.getElementById("dfsli").style.display = "block";
+                    if(data['dfs_manager']==true){
+                        document.getElementById("file_dfs_t").style.display = "inline";
+                        document.getElementById("relationconfig").style.display = "inline";
+                    }
+                    if(data['file_manager'] !=""){
+                        document.getElementById("file_dfs_t").style.display = "inline";
+                    }
+                }
+                if (data['app_director_count'] !=0){
+                    document.getElementById("approval").style.display = "inline";
+                    $("#approval_count").html(data['app_director_count']);
+                }
+                if(data['app_relation_count'] !=0){
+                    document.getElementById("relationapproval").style.display = "inline";
+                    $("#relationapproval_count").html(data['app_relation_count']);
+                }
+
+            }
+        });
+    });
+
+
+    $(function() {
+        if( '{{  request.session.username }}'=='' ){
+            if( '{{  request.session.returnbackurl }}'!='/' ){
+                $('#loginModal').modal({
+                    keyboard: true,
+                    backdrop:false
+                });
+            }
+
+        }
+        $.ajax({
+            url:{% url "showcountman" %},
+            type:'POST',
+            dataType:'json',
+            async:false,
+            success: function (data) {
+                if (data['status']!=0){
+                    document.getElementById('iddirector').style.display="inline";
+                    document.getElementById('spancount').innerHTML=data['status'];
+                }
+            }
+        });
+        $.ajax({
+            url:{% url "dfs_permission" %},
+            type:'POST',
+            dataType:'json',
+            {#                        data:{'app_level1_path_list':JSON.stringify(app_level1_path_list)},#}
+            success:function(data){
+                if (data['dfs_switch'] !="1"){
+                    document.getElementById("dfsli").style.display = "block";
+                    if(data['dfs_manager']==true){
+                        document.getElementById("file_dfs_t").style.display = "inline";
+                        document.getElementById("relationconfig").style.display = "inline";
+                    }
+                    if(data['file_manager'] !=""){
+                        document.getElementById("file_dfs_t").style.display = "inline";
+                    }
+                }
+                if (data['app_director_count'] !=0){
+                    document.getElementById("approval").style.display = "inline";
+                    $("#approval_count").html(data['app_director_count']);
+                }
+                if(data['app_relation_count'] !=0){
+                    document.getElementById("relationapproval").style.display = "inline";
+                    $("#relationapproval_count").html(data['app_relation_count']);
+                }
+
+            }
+        });
+    });
+
+    $ (function () {
+        $.ajax({
+            url:{% url "jzhtml" %},
+            type:'POST',
+            dataType:'json',
+            success:function (data) {
+                if(data['result']==2){
+                    document.getElementById('sqhtml').style.display  = "none";
+                    document.getElementById('glhtml').style.display  = "none";
+                }
+                else {
+                    document.getElementById('sqhtml').style.display  = "inline";
+                    document.getElementById('glhtml').style.display  = "inline";
+                }
+            }
+        });
+        $.ajax({
+            url:{% url "IFadmin" %},
+            type:'POST',
+            dataType:'json',
+            success:function (data) {
+                console.log(data)
+                if(data['result']== 2){
+                    document.getElementById('jzadminhtml').style.display  = "none";
+                    document.getElementById('addadminhtml').style.display  = "none";
+                    document.getElementById('userunlockd').style.display  = "none";
+                    document.getElementById('addPwdNoLockd').style.display  = "none";
+                    document.getElementById('adresetpwd').style.display  = "none";
+                }
+                else {
+                    document.getElementById('jzadminhtml').style.display  = "inline";
+                    document.getElementById('addadminhtml').style.display  = "inline";
+                    document.getElementById('userunlockd').style.display  = "inline";
+                    document.getElementById('addPwdNoLockd').style.display  = "inline";
+                    document.getElementById('adresetpwd').style.display  = "inline";
+                }
+            }
+        })
+
+    });
+
+</script>
+
+
+</body>
+
+</html>

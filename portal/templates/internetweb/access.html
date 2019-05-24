@@ -1,0 +1,235 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    <title>网络权限申请</title>
+{% endblock %}
+
+{% block custom_css %}
+    <link href="/static/sweetalert/sweetalert.css" rel="stylesheet">
+    <link href="/static/css/blue.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+    <!--page header start-->
+    <div class="page-header">
+        <div class="row">
+            <div class="col-sm-6">
+                <h4>网络权限申请</h4>
+            </div>
+        </div>
+    </div>
+    <!--page header end-->
+    <!--start page content-->
+    <div class="row">
+        <div class="col-sm-12">
+            <h5 style="color: #23b7e5;font-size:15px"  >权限申请成功后 请您及时通知 【主管】进行审批！若权限审批完成后，等待30分钟后新权限才能生效！</h5>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="tabs">
+                                <!-- Nav tabs -->
+                                <ul class="list-inline tabs-nav" role="tablist">
+                                    <li id = "tab1" role="presentation" class="active"><a href="#tab_add_folder1" aria-controls="tab_add_folder1" role="tab" data-toggle="tab">上网权限</a></li>
+                                    <li id = "tab2" role="presentation"><a href="#tab_add_folder2" aria-controls="tab_add_folder2" role="tab" data-toggle="tab">无线权限</a></li>
+                                    <li id = "tab3" role="presentation"><a href="#tab_add_folder3" aria-controls="tab_add_folder3" role="tab" data-toggle="tab">VPN权限</a></li>
+                                </ul>
+                                <!-- Tab panes -->
+                                <div class="tab-content">
+                                    <div role="tabpanel" class="tab-pane active" id="tab_add_folder1">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <fieldset class="jquery-Ui-fieldset">
+                                                        {% if internet_group_now %}
+                                                            <legend>当前的上网权限：{{ internet_group_now_des }}</legend>
+                                                        {% else  %}
+                                                            <legend>当前的上网权限：无</legend>
+                                                        {% endif %}
+
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label" style="color: #23b7e5;">请选择需要更改的权限：</label>
+                                                            <div class="col-sm-9">
+                                                                <div class="col-sm-9">
+                                                                    {% for internet_group in internet_group_list %}
+                                                                        <div class="i-checks"><label> <input type="radio" checked="" value="{{ internet_group.name}}" name="access"> <i></i>{{ internet_group.description}} </label></div>
+                                                                    {% endfor %}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </fieldset>
+                                                    <div align="center">
+                                                        <button  type="button" class="btn btn-primary btn-rounded btn-border btn-sm click" style=" width:300px;font-size: 18px " id="saveInternet" onclick="saveInternetAccess({{ internet_group_now }},'access')">提交</button>
+                                                    </div>
+                                                </div><!--end col-->
+
+                                            </div><!--end row-->
+                                        </div>
+                                    </div>
+                                    <div role="tabpanel" class="tab-pane" id="tab_add_folder2">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <fieldset class="jquery-Ui-fieldset">
+                                                        {% if wifi_group_now %}
+                                                            <legend>当前的无线权限：{{ wifi_group_now_des}}</legend>
+                                                        {% else  %}
+                                                            <legend>当前的无线权限：无</legend>
+                                                        {% endif %}
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label" style="color: #23b7e5;">请选择需要更改的权限：</label>
+                                                            <div class="col-sm-9">
+                                                                <div class="col-sm-9">
+                                                                    {% for wifi_group in wifi_group_list %}
+                                                                        <div class="i-checks"><label> <input type="radio" checked="" value="{{ wifi_group.name}}" name="wifi"> <i></i>{{ wifi_group.description}} </label></div>
+                                                                    {% endfor %}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+                                                    </fieldset>
+                                                    <div align="center">
+                                                        <button  type="button" class="btn btn-primary btn-rounded btn-border btn-sm click" style=" width:300px;font-size: 18px " id="saveInternet" onclick="saveInternetAccess({{ wifi_group_now }},'wifi')">提交</button>
+                                                    </div>
+                                                </div><!--end col-->
+
+                                            </div><!--end row-->
+                                        </div>
+                                    </div>
+                                    <div role="tabpanel" class="tab-pane" id="tab_add_folder3">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <fieldset class="jquery-Ui-fieldset">
+                                                        {% if vpn_group_now %}
+                                                            <legend>当前的VPN权限：{{ vpn_group_now_des }}</legend>
+                                                        {% else  %}
+                                                            <legend>当前的VPN权限：无</legend>
+                                                        {% endif %}
+
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label" style="color: #23b7e5;">请选择需要更改的权限：</label>
+                                                            <div class="col-sm-9">
+                                                                <div class="col-sm-9">
+                                                                    {% for vpn_group in vpn_group_list %}
+                                                                        <div class="i-checks"><label> <input type="radio" checked=""  value="{{ vpn_group.name}}" name="vpn"> <i></i>{{ vpn_group.description}} </label></div>
+                                                                    {% endfor %}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+                                                    </fieldset>
+                                                    <div align="center">
+                                                        <button  type="button" class="btn btn-primary btn-rounded btn-border btn-sm click" style=" width:300px;font-size: 18px " id="saveInternet" onclick="saveInternetAccess({{ vpn_group_now }},'vpn')">提交</button>
+                                                    </div>
+                                                </div><!--end col-->
+
+                                            </div><!--end row-->
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--end page content-->
+
+{% endblock %}
+
+{% block custom_js %}
+    <script src="/static/js/icheck.min.js"></script>
+    <script src="/static/sweetalert/sweetalert.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue'
+            });
+        });
+        $(function(){
+            var search=window.location.search;
+            if(search=="?vpn"){
+                $('#tab1').removeClass('active');
+                $('#tab3').addClass('active');
+                $('#tab_add_folder1').removeClass('active');
+                $('#tab_add_folder3').addClass('active');
+            }else if(search=="?wifi"){
+                $('#tab1').removeClass('active');
+                $('#tab2').addClass('active');
+                $('#tab_add_folder1').removeClass('active');
+                $('#tab_add_folder2').addClass('active');
+            }
+        });
+
+
+
+        {#        $(".click").click(function(){$(this).attr("disabled","disabled");});#}
+        function saveInternetAccess(now,types) {
+            if(types=="access"){
+                var access=$("input[name='access']:checked").val();
+            }else if (types=="wifi"){
+                var access=$("input[name='wifi']:checked").val();
+            }else if (types=="vpn"){
+                var access=$("input[name='vpn']:checked").val();
+            }else {
+                var access = ''
+            }
+
+            if (access){
+                swal({
+                        title: "申请新的上网权限？",
+                        text: "新权限生效后,会移除旧权限",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "确定",
+                        cancelButtonText: "取消",
+                        closeOnConfirm: false
+                    },
+                    function(){
+                        $.ajax({
+                            url:{% url "saveInternet" %},
+                            type:'POST',
+                            dataType:'json',
+                            traditional:true,
+                            data:{'old_internet_now':JSON.stringify(now),"new_internet":access,"type_internet":types},
+                            success:function(data) {
+                                if (data['isSuccess']) {
+                                    swal({
+                                            title: "申请成功！",
+                                            //text:"账号已经成功关闭！",
+                                            type: "success",
+                                            showConfirmButton: "true",
+                                            confirmButtonText: "好的",
+                                            animation: "slide-from-top"
+                                        },
+                                        function () {
+                                            window.location.href = '/referuser/';
+                                        })
+                                }
+                                else {
+                                    swal("申请失败！");
+                                }
+                            }
+                        });
+                    });
+            }else
+            {
+                swal("请选择需要申请的权限");
+            }
+
+
+        }
+    </script>
+
+
+{% endblock %}

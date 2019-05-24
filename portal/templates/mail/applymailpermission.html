@@ -1,0 +1,179 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    <title>邮箱群组权限申请</title>
+{% endblock %}
+
+{% block custom_css %}
+
+    <link href="/static/easyfrom/easyform.css" rel="stylesheet" type="text/css">
+    <link href="/static/sweetalert/sweetalert.css" rel="stylesheet">
+    <link href="/static/switch/bootstrap-switch.min.css" rel="stylesheet">
+    <link href="/static/css/blue.css" rel="stylesheet">
+
+    <!--template css-->
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="accordion1" class="panel-group accordion">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span aria-hidden="true" class="icon-screen-smartphone"></span>
+                        邮箱群组权限申请
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div class="form-horizontal" id="demo-form" >
+                                <div class="form-group" style="margin-top: 15px">
+                                    <label class="col-sm-2 col-sm-offset-1 control-label" style="margin-top: 5px">请输入邮箱群组地址:</label>
+                                    <div class="col-sm-7 ">
+                                        <div class="input-group date" style="width:40%;">
+                                            <input type="text" class="form-control" id="findmailchange" >
+                                            <span class="input-group-addon" onclick="findmailgroup()">
+                                    <span class="fa fa-search">
+                                    </span>
+                                </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-top: 15px;display: none" id="showmailgroupPermission">
+                                    <label class="col-sm-2 col-sm-offset-1 control-label" style="margin-top: 5px">邮箱群组权限</label>
+                                    <div class="col-sm-7">
+                                        <div class="input-group date" style="width:40%;">
+                                            <div class="i-checks" style="display:inline">
+                                                <label style="position:relative;float: left"> <input type="checkbox"  value="receive" name="check" id="checkreceive"> <i></i>收件人权限 </label>
+                                                <label style="position:relative;float: right;" id="checksendtospan"> <input type="checkbox" value="sendto"   name="check" id="checksendto"> <i></i> 发件人权限 </label></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-top: 15px;display: none" id="submitbutton">
+                                    <label class="col-sm-2 col-sm-offset-1 control-label" style="margin-top: 5px"></label>
+                                    <div class="col-sm-7">
+                                        <div class="input-group date" style="width:40%;">
+                                            <div class="i-checks" style="display:inline">
+                                                <label style="position:relative;float: right"> <input class="btn btn-primary" id="sub" value="申请" type="button" ></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block custom_js %}
+    <script src="/static/js/icheck.min.js"></script>
+    <script src="/static/easyfrom/easyform.js"></script>
+    <script src="/static/sweetalert/sweetalert.min.js"></script>
+    <script src="/static/switch/bootstrap-switch.min.js"></script>
+    <script src="/static/js/icheck.min.js"></script>
+    <script>
+        function submitApplication(groupname) {
+            var creceivevalue = document.getElementById("checkreceive").checked;
+            var issendto = document.getElementById('checksendtospan').style.display;
+            if (issendto == "none"){
+                var sendtovalue = false;
+            }
+            else {
+                var sendtovalue = document.getElementById("checksendto").checked;
+            }
+            if(creceivevalue == false && sendtovalue == false){
+                swal({
+                    title: "请至少选择一个权限",
+                    type: "success",
+                    showCancelButton: false,
+                    closeOnConfirm: false
+                });
+            }
+            else {
+                $.ajax({
+                    url:{% url "submitApplication" %},
+                    type:'POST',
+                    dataType:'json',
+                    data:{'groupname':groupname,"creceivevalue":creceivevalue,"sendtovalue":sendtovalue},
+                    async:false,
+                    success: function (data) {
+                        if(data['status']){
+                            swal({
+                                    title: "申请成功",
+                                    type: "success",
+                                    showCancelButton: false,
+                                    closeOnConfirm: false
+                                }
+                                ,function(){location.reload()}
+                            );
+                        }
+                        else {
+                            swal({
+                                title: "申请失败",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: false
+                            });
+                        }
+
+                    }
+                })
+            }
+
+        }
+        $(document).ready(function () {
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue'
+            });
+        });
+        function findmailgroup() {
+            document.getElementById('showmailgroupPermission').style.display  = "none";
+            document.getElementById('submitbutton').style.display  = "none";
+            var mailgroupnamevalue  = document.getElementById('findmailchange').value;
+            $.ajax({
+                url:{% url "findmailgroup" %},
+                type:'POST',
+                dataType:'json',
+                data:{'mailgroupnamevalue':mailgroupnamevalue},
+                async:false,
+                success: function (data) {
+                    if(data['status']){
+                        document.getElementById('showmailgroupPermission').style.display  = "block";
+                        document.getElementById('submitbutton').style.display  = "block";
+                        document.getElementById('submitbutton').onclick  = function () {
+                            submitApplication(mailgroupnamevalue)
+                        };
+                        if(data['message']){
+                            document.getElementById('checksendtospan').style.display  = "block";
+                        }
+                        else {
+                            document.getElementById('checksendtospan').style.display  = "none";
+                        }
+                    }
+                    else {
+                        swal({
+                            title: "查询没有此邮箱群组！",
+                            timer: 2000,
+                            type: "error",
+                            showConfirmButton: false
+                        });
+                    }
+                }
+            });
+        }
+        $('#findmailchange').keydown(function(e){
+            if(e.keyCode==13) {
+                findmailgroup()
+            }
+        });
+        $('#mySwitch11').bootstrapSwitch({
+            onText:'开',
+            offText:'关'});
+    </script>
+
+{% endblock %}

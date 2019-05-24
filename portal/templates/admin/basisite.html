@@ -1,0 +1,1838 @@
+{% extends 'admin/adminindex.html' %}
+
+{% block title %}
+    配置
+{% endblock %}
+
+{% block custom_css %}
+
+    <link href="/static/easyfrom/easyform.css" rel="stylesheet" type="text/css" xmlns="http://www.w3.org/1999/html">
+    <link href="/static/switch/bootstrap-switch.min.css" rel="stylesheet">
+    <!--template css-->
+{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <div class="row">
+            <div class="col-sm-6">
+                <h4>基本信息配置</h4>
+            </div>
+            <div class="col-sm-6 text-right">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">网站标题配置</div>
+                <div class="panel-body">
+                    {% if titleshowmessage %}
+                        <form  class="form-horizontal" id="titlesite"  method="post" onsubmit="return updateoutapimysql();">
+                    {% else %}
+                        <form  class="form-horizontal" id="titlesite"  method="post" onsubmit="return savetitle();">
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">标题名称</label>
+                        <div class="col-lg-4">
+                            <input id="inputtitle" class="form-control" {% if titleshowmessage %} value="{{ titleshowmessage.title }}" {% else %}placeholder="xxx平台"  {% endif %}>
+                            <span class="help-block m-b-none" style="color:#ac2925;"><i class="fa fa-info-circle"></i> 标题名称，用于显示浏览器窗口标题等位置</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label"> powered by 名称</label>
+                        <div class="col-lg-4">
+                            <input id="inputheard" class="form-control" {% if titleshowmessage %} value="{{ titleshowmessage.heard }}" {% else %}placeholder="IT支持"  {% endif %}>
+                            <span class="help-block m-b-none" style="color:#ac2925;"><i class="fa fa-info-circle"></i>  powered by 名称，用于首页底部显示© powered by 名称</span>
+                        </div>
+                    </div>
+                    {% if titleshowmessage %}
+                        <input style="text-align: center" class="btn btn-primary"  value="更新配置" type="submit">
+
+                        </form>
+                        <button style="position: absolute;bottom: 15px;left: 101px" onclick="deltitle()" class="btn btn-primary">清除配置</button>
+
+                    {% else %}
+                        <input style="text-align: center" class="btn btn-primary"  value="保存" type="submit">
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">获取上级接口</div>
+                <div class="panel-body">
+                    <div class="form-group" id="changeradio" {% if mangermess != 'fasle' or mangerapiin  or  mangermshow%}style="margin-bottom: 20px;display: none" {% else %} style="margin-bottom: 20px;display: block"{% endif %}>
+                        <label  class="col-lg-2 control-label" style="margin-top: 20px">是否有上级接口:</label>
+                        <div class="col-lg-3 ">
+                            <div class="i-checks" ><label> <input type="radio"  value="True" name="check"> <i></i>有上级接口 </label><label style="margin: 20px"> <input type="radio" value="False" name="check"> <i></i> 无上级接口 </label><label> <input type="radio" value="truein" name="check"> <i></i> 审批流程接入 </label></div>
+                        </div>
+                    </div>
+                    <div  class="form-horizontal" id="hasmangeapi" {% if mangermess.status == '0' or mangermess == 'fasle' %}style="display:none;"{% else %} style="display:block;"{% endif %}>
+                        <a onclick="backe2()"class="btn btn-skype"><i class="fa fa-reply"></i> 返回</a>
+                        <div class="form-group" {% if mangermess.status == '1' or mangermess != 'fasle' %}style="display:none;" {% else  %}style="display:block;"{% endif %}>
+                            <label class="col-lg-2 control-label">注意事项：</label>
+                            <div class="col-lg-6">
+                                     <span style="color:#ac2925;"><i class="fa fa-info-circle"></i> 接口必须为get方法,调用示例：http://otherapi/GetActiveSyncDevice?username="username"， 该方法会传入 username 参数。返回格式为 {'ResultCode': 0,'List': [{'EmpCount': '域账号', 'Email': '邮箱地址', 'xxxx': 'xxxxx'}]}。ResultCode:0 代表接口调用成功，List中EmpCount代表上级AD账号，Email代表邮箱地址。
+                                         </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">接口URL</label>
+                            <div class="col-lg-5">
+                                <input id="inputapiurl"  placeholder="http://otherapi/GetActiveSyncDevice?" class="form-control" {% ifequal mangermess 'fasle' %}{% else %}readonly="readonly" value="{{ apiurl.mess }}" {% endifequal %}>
+                            </div>
+                        </div>
+                        {% ifequal mangermess 'fasle' %}
+                            <div class="form-group">
+                        {% else %}
+                            <div class="form-group" style="display:none;">
+                        {% endifequal %}
+                        <label class="col-lg-2 control-label">测试获取上级</label>
+                        <div class="col-lg-5">
+                            <input id="inputestuser"  placeholder="count" class="form-control" >
+                        </div>
+                        </div>
+                        {% ifequal mangermess 'fasle' %}
+                            <button onclick="testaip()" class="btn btn-primary">接口测试</button>
+                        {% else %}
+                            <button onclick="delapimysql()" class="btn btn-primary">清除配置</button>
+                        {% endifequal %}
+                        </div>
+                        <div  class="form-horizontal" id="haveapiin" {% if mangerapiin %}style="display:block;"{% else %} style="display:none;"{% endif %}>
+                            <a onclick="backe1()"class="btn btn-skype"><i class="fa fa-reply"></i> 返回</a>
+                            <div class="form-group" {% if mangerapiin %} style="display:none;" {% else  %}style="display:block;"{% endif %}>
+                                <label class="col-lg-2 control-label">注意事项：</label>
+                                <div class="col-lg-6">
+                                     <span style="color:#ac2925;"><i class="fa fa-info-circle"></i> 接口必须为Post方法,此接口传入参数为json格式。headers = {
+                                            "Content-Type": "application/json"
+                                        }
+                                     </span></br>
+                                    <span style="color:#ac2925;">传入参数格式:{"status":0, "message": {"id":"1","username":"测试","displayname":"测试","types":"测试","applytype":"测试","applydetail":"测试"}}</span>
+                                    <span style="color:#ac2925;">返回参数格式:{"status": 0, "message": ""}; 0 表示成功,其他表示失败</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">接收流程传入值url</label>
+                                <div class="col-lg-5">
+                                    <input id="inputhasapion"   class="form-control" {% if mangerapiin %} readonly="readonly" value="{{ mangerapiin.mess }}" {% else %} placeholder="http://localhost:22238/PostActiveSyncDevice/" {% endif %}>
+                                </div>
+                            </div>
+                            {% if mangerapiin  %}
+                                <div class="form-group" style="display:none;">
+                            {% else %}
+                                <div class="form-group">
+                            {% endif %}
+                            </div>
+                            {% if mangerapiin %}
+                                <button onclick="deloutapimysql()" class="btn btn-primary">清除配置</button>
+                            {% else %}
+                                <button onclick="apiintest()" class="btn btn-primary">接口测试</button>
+                            {% endif %}
+                            </div>
+                            {% if mangermshow  %}
+                                <form  class="form-horizontal" id="nomangeapi" method="post" onsubmit="return updateonlymanger();" {% if mangermess.status == '1' or mangermess == 'fasle' %}style="display:none;" {% else  %}style="display:block;"{% endif %}>
+                            {% else %}
+
+                                <form  class="form-horizontal" id="nomangeapi" method="post" onsubmit="return saveonlymanger();" {% if mangermess.status == '1' or mangermess == 'fasle' %}style="display:none;" {% else  %}style="display:block;"{% endif %}>
+
+                                <a id="savemaneg" class="btn btn-skype"><i class="fa fa-reply"></i> 返回</a>
+                            {% endif %}
+                            <div class="form-group" {% if mangermess.status == '0' or mangermess != 'fasle' %}style="display:none;" {% else  %}style="display:block;"{% endif %}>
+
+                                <label class="col-lg-2 control-label">注意事项：</label>
+                                <div class="col-lg-5">
+                                    <span style="color:#ac2925;"><i class="fa fa-info-circle"></i> 审批人为必填项，如无审批人接口，需填写默认审批人，格式为域账号</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">公共邮箱审批人</label>
+                                <div class="col-lg-3">
+                                    <input id="inputpub"  placeholder="请填写AD账号" class="form-control" {% ifequal mangermess 'fasle' %}{% else %} value="{{ mangermshow.pubmailmanger }}" {% endifequal %}>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">邮箱群组审批人</label>
+                                <div class="col-lg-3">
+                                    <input id="inputgroup"  placeholder="请填写AD账号" class="form-control" {% ifequal mangermess 'fasle' %}{% else %} value="{{ mangermshow.mailgroumanger }}" {% endifequal %} >
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">DFS审批人</label>
+                                <div class="col-lg-3">
+                                    <input id="inputdfs" placeholder="请填写AD账号" class="form-control" {% ifequal mangermess 'fasle' %}{% else %} value="{{ mangermshow.dfsmanger }}" {% endifequal %}>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">网络权限审批人</label>
+                                <div class="col-lg-3">
+                                    <input id="inputnetwork"  placeholder="请填写AD账号" class="form-control" {% ifequal mangermess 'fasle' %}{% else %} value="{{ mangermshow.networkmanger }}" {% endifequal %}>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">VPN权限审批人</label>
+                                <div class="col-lg-3">
+                                    <input id="inputvpn"  placeholder="请填写AD账号" class="form-control" {% ifequal mangermess 'fasle' %}{% else %} value="{{ mangermshow.vnpmanger }}" {% endifequal %}>
+                                </div>
+                            </div>
+                            {% if mangermshow  %}
+                                <button onclick="updateonlymanger()" class="btn btn-primary">更新信息</button>
+                                </form>
+                                <button style="position: absolute;bottom: 15px;left: 101px"  onclick="delonlymanger()" class="btn btn-primary">清除信息</button>
+                            {% else %}
+                                <input class="btn btn-primary"  value="保存" type="submit">
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">短信接口</div>
+                <div class="panel-body">
+                    <div class="form-group" id="changeradio1" {% ifequal phonemess 'fasle' %}style="margin-bottom: 20px;display: block" {% else %} style="margin-bottom: 20px;display: none"{% endifequal %}>
+                        <label  class="col-lg-2 control-label" style="margin-top: 20px">是否有短信接口:</label>
+                        <div class="col-lg-3 ">
+                            <div class="i-checks" ><label> <input type="radio"  value="True" name="check1"> <i></i>有短信接口 </label><label style="margin: 20px"> <input type="radio" value="False" name="check1"> <i></i> 无短信接口 </label></div>
+                        </div>
+                    </div>
+                    <div  class="form-horizontal" id="sendmessag" {% if phonemess == 'fasle' %}style="display:none;"{% else %} style="display:block;"{% endif %}>
+
+                        <a onclick="testrs()"class="btn btn-skype"><i class="fa fa-reply"></i> 返回</a>
+
+                        <div class="form-group" {% if  phonemess != 'fasle' %}style="display:none;" {% else  %}style="display:block;"{% endif %}>
+                            <label class="col-lg-2 control-label">注意事项：</label>
+                            <div class="col-lg-6">
+                                <span style="color:#ac2925;"><i class="fa fa-info-circle"></i>接口必须为get方法,调用示例：http://otherapi/Getuserphone?username="username"， 该方法会传入 username 参数。返回格式为： {'ResultCode': 0,'List': [{'Mobilephone': '手机',  'xxxx': 'xxxxx'}]}。ResultCode:0 代表接口调用成功，List中Mobilephone代表用户手机号</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">接口URL</label>
+                            <div class="col-lg-5">
+                                <input id="inputphoneapiurl"  placeholder="http://otherapi/Getuserphone?" class="form-control" {% ifequal phonemess 'fasle' %}{% else %}readonly="readonly" value="{{ phonemess.mess }}" {% endifequal %}>
+                            </div>
+                        </div>
+                        {% ifequal phonemess 'fasle' %}
+                            <div class="form-group">
+                        {% else %}
+                            <div class="form-group" style="display:none;">
+                        {% endifequal %}
+                        <label class="col-lg-2 control-label">测试账号</label>
+                        <div class="col-lg-5">
+                            <input id="inputestusermess"  placeholder="count" class="form-control" >
+                        </div>
+                        </div>
+
+                        {% ifequal phonemess 'fasle' %}
+                            <button onclick="usertophone()" class="btn btn-primary">接口测试</button>
+                        {% else %}
+                            <button onclick="deluserphoneapimysql()" class="btn btn-primary">清除配置</button>
+                        {% endifequal %}
+                        <br>
+                        <div class="form-group" {% if  messagesend != 'fasle' %}style="display:none;" {% else  %}style="display:block;"{% endif %}>
+                            <label class="col-lg-2 control-label">注意事项：</label>
+                            <div class="col-lg-6">
+                                <span style="color:#ac2925;"><i class="fa fa-info-circle"></i> 接口必须为get方法,此接口仅能传入手机号，短信内容。调用示例 ：http://otherapi/SendMessage?mobile='183838383030'&message='测试内容'。mobile为手机号，message为内容。</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">接口URL</label>
+                            <div class="col-lg-5">
+                                <input id="inputphoneapi"  placeholder="http://otherapi/SendMessage?" class="form-control" {% ifequal messagesend 'fasle' %}{% else %}readonly="readonly" value="{{ messagesend.mess }}" {% endifequal %}>
+                            </div>
+                        </div>
+                        {% ifequal messagesend 'fasle' %}
+                            <div class="form-group">
+                        {% else %}
+                            <div class="form-group" style="display:none;">
+                        {% endifequal %}
+                        <label class="col-lg-2 control-label">测试接受短信手机号</label>
+                        <div class="col-lg-5">
+                            <input id="inputestphone"  placeholder="188XXXXXXXX" class="form-control" >
+                        </div>
+                        </div>
+                        {% ifequal messagesend 'fasle' %}
+                            <div class="form-group">
+                        {% else %}
+                            <div class="form-group" style="display:none;">
+                        {% endifequal %}
+                        <label class="col-lg-2 control-label">测试短信内容</label>
+                        <div class="col-lg-5">
+                            <input id="inputesmessage"  placeholder="测试内容" class="form-control" >
+                        </div>
+                        </div>
+                        {% ifequal messagesend 'fasle' %}
+                            <button onclick="sendtpmessage()" class="btn btn-primary">接口测试</button>
+                        {% else %}
+                            <button onclick="delsendapi()" class="btn btn-primary">清除配置</button>
+                        {% endifequal %}
+                        </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">基础配置</div>
+                <div class="panel-body">
+
+                    {% ifequal confstatus 'fasle' %}
+                        <form class="form-horizontal" id="baseform"  method="post" onsubmit="return getVal();">
+                    {% else %}
+                        <form class="form-horizontal" id="baseform"  method="post" onsubmit="return updateconfigsql();">
+
+                    {% endifequal %}
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">邮箱群组OU</label>
+                        <div class="col-lg-3">
+                            <input id="inputmailgroupou"  placeholder="请输入OU的distinguishedName属性" class="form-control" {% ifequal confstatus 'fasle' %}{% else %} value="{{ confmess.mailgroupdefaultOU }}" {% endifequal %}>
+                        </div>
+                        <label class="col-lg-2 control-label">密码长度限制</label>
+                        <div class="col-lg-3">
+                            <input id="inputpwdlen"  placeholder="8" class="form-control" {% ifequal confstatus 'fasle' %}{% else %} value="{{ confmess.lengthpwd}}" {% endifequal %}>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">兼职账号OU</label>
+                        <div class="col-lg-3">
+                            <input id="inputjzou"  placeholder="请输入OU的distinguishedName属性" class="form-control" {% ifequal confstatus 'fasle' %}{% else %} value="{{ confmess.jz_account_dn }}" {% endifequal %}>
+                        </div>
+                        <label class="col-lg-2 control-label">兼职账号组</label>
+                        <div class="col-lg-3">
+                            <input id="inputjzgroup"  placeholder="权限组名称" class="form-control" {% ifequal confstatus 'fasle' %}{% else %} value="{{ confmess.part_time_group }}" {% endifequal %}>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">公共邮箱管理者栏位</label>
+                        <div class="col-lg-3">
+                            <input id="inputpubmaillanwei"  placeholder="账号栏位对应属性，如办公室对应physicalDeliveryOfficeName" class="form-control" {% ifequal confstatus 'fasle' %}{% else %} value="{{ confmess.pubmailfence }}" {% endifequal %}>
+                        </div>
+                        <label class="col-lg-2 control-label">公共邮箱放置DB</label>
+                        <div class="col-lg-3">
+                            <input id="inputpubmailDB"  placeholder="邮箱数据库名称，如DB01" class="form-control" {% ifequal confstatus 'fasle' %}{% else %} value="{{ confmess.pubmailDB }}" {% endifequal %}>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">防锁定组</label>
+                        <div class="col-lg-3">
+                            <input id="inputunlockgroup"  placeholder="权限组名称" class="form-control" {% ifequal confstatus 'fasle' %}{% else %} value="{{ confmess.NoLockGroup }}" {% endifequal %}>
+                        </div>
+                        <label class="col-lg-2 control-label">公共邮箱OU</label>
+                        <div class="col-lg-3">
+                            <input id="inputpubmailou"  placeholder="请输入OU的distinguishedName属性" class="form-control" {% ifequal confstatus 'fasle' %}{% else %} value="{{ confmess.pubmailou }}" {% endifequal %}>
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">上网权限组</label>
+                        <div class="col-lg-4">
+                            <table id="tabone" style="display: none">
+                                <tbody>
+                                <tr>
+                                    <td align="center">
+                                        <input type="text" placeholder="权限组名称" name="name" /></td>
+                                    <td align="center">
+                                        <input type="text" placeholder="描述" name="description" /></td>
+                                    <td>
+                                        <input type="button" onClick="deltrone(this)" value="删行">
+                                    </td>
+                                </tbody>
+                            </table>
+                            {% if confstatus == 'fasle'%}
+                                <table id="dynamicTableone" width="400" border="0" cellspacing="0" cellpadding="0">
+                                    <tbody>
+                                    <tr >
+                                        <td align="center">
+                                            <input type="text" placeholder="权限组名称" name="name" /></td>
+                                        <td align="center">
+                                            <input type="text" placeholder="描述" name="description" /></td>
+                                        <td>
+                                            <input type="button" id="btn_addtrone" value="增加">
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <table id="dynamicTableone" >
+                                    <tbody>
+                                    <td>
+                                        <input type="button" id="btn_addtrone"  value="增加">
+                                    </td>
+                                    {% for i in net %}
+                                        <tr >
+                                            <td>
+                                                <input type="text" placeholder="权限组名称" name="name"  value="{{ i.name }}" ></td>
+                                            <td>
+                                                <input type="text" placeholder="描述" name="description"  value="{{ i.description }}"></td>
+                                            <td>
+                                                <input type="button" onClick="deltrone(this)" value="删行">
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+
+                                    </tbody>
+                                </table>
+                            {% endif %}
+                        </div>
+                        <label class="col-lg-1 control-label">VPN权限组</label>
+                        <div class="col-lg-4">
+                            <table id="tabtwo" style="display: none">
+                                <tbody>
+                                <tr>
+                                    <td align="center">
+                                        <input type="text"  placeholder="权限组名称" name="name" /></td>
+                                    <td align="center">
+                                        <input type="text"  placeholder="描述" name="description" /></td>
+                                    <td>
+                                        <input type="button"  onClick="deltrtwo(this)" value="删行">
+                                    </td>
+                                </tbody>
+                            </table>
+                            {% if confstatus == 'fasle'%}
+                                <table id="dynamicTabletwo" width="400" border="0" cellspacing="0" cellpadding="0">
+                                    <tbody>
+                                    <tr>
+                                        <td align="center">
+                                            <input type="text"  placeholder="权限组名称" name="name" ></td>
+                                        <td align="center">
+                                            <input type="text"  placeholder="描述"  name="description" ></td>
+                                        <td>
+                                            <input type="button" id="btn_addtrtwo" value="增加">
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <table id="dynamicTabletwo">
+                                    <tbody>
+                                    <td>
+                                        <input type="button" id="btn_addtrtwo" value="增加">
+                                    </td>
+                                    {% for i in vpn %}
+                                        <tr>
+                                            <td>
+                                                <input type="text" placeholder="权限组名称" name="name"  value="{{ i.name }}" ></td>
+                                            <td>
+                                                <input type="text" placeholder="描述" name="description"  value="{{ i.description }}"></td>
+                                            <td>
+                                                <input type="button"  onClick="deltrtwo(this)" value="删行">
+                                            </td>
+
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">Wifi权限组</label>
+                        <div class="col-lg-4">
+                            <table id="tabthree" style="display: none">
+                                <tbody>
+                                <tr>
+                                    <td align="center">
+                                        <input type="text" placeholder="权限组名称" name="name" /></td>
+                                    <td align="center">
+                                        <input type="text" placeholder="描述" name="description" /></td>
+                                    <td>
+                                        <input type="button"  onClick="deltrthree(this)" value="删行">
+                                    </td>
+                                </tbody>
+                            </table>
+                            {% if confstatus == 'fasle'%}
+                                <table id="dynamicTablethree" width="400" border="0" cellspacing="0" cellpadding="0">
+                                    <tbody>
+                                    <tr >
+                                        <td align="center">
+                                            <input type="text" placeholder="权限组名称" name="name" /></td>
+                                        <td align="center">
+                                            <input type="text" placeholder="描述" name="description" /></td>
+                                        <td>
+                                            <input type="button" id="btn_addtrthree" value="增加">
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <table id="dynamicTablethree">
+                                    <tbody>
+                                    <td>
+                                        <input type="button" id="btn_addtrthree" value="增加">
+                                    </td>
+                                    {% for i in wifi %}
+                                        <tr >
+                                            <td>
+                                                <input type="text" placeholder="权限组名称" name="name"  value="{{ i.name }}" ></td>
+                                            <td>
+                                                <input type="text" placeholder="描述" name="description"  value="{{ i.description }}"></td>
+                                            <td>
+                                                <input type="button"  onClick="deltrthree(this)" value="删行">
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% ifequal confstatus 'fasle' %}
+                        <input style="text-align: center" class="btn btn-primary"  value="提交" type="submit">
+                        </form>
+                    {% else %}
+                        <input style="text-align: center" class="btn btn-primary"  value="更新配置" type="submit">
+                        </form>
+                        <button style="position: absolute;bottom: 15px;left: 101px" onclick="delconfigsql()" class="btn btn-primary">清除配置</button>
+                    {% endifequal %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">邮箱账号配置<a>  --此配置用于发送邮件</a></div>
+                <div class="panel-body">
+                    {% ifequal message 'fasle' %}
+                        <form  class="form-horizontal" id="mailsite"  method="post" onsubmit="return testsend();">
+                    {% else %}
+                        <form  class="form-horizontal" id="mailsite"  method="post" onsubmit="return updatetestsend();">
+                    {% endifequal %}
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">邮箱地址</label>
+                        <div class="col-lg-3">
+                            <input id="input-address"  placeholder="portal@contoso.com" class="form-control" {% ifequal message 'fasle' %}{% else %} value="{{ message.mailaddress }}" {% endifequal %}>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">邮箱账号</label>
+                        <div class="col-lg-3">
+                            <input id="input-mail"  placeholder="portal" class="form-control" {% ifequal message 'fasle' %}{% else %} value="{{ message.mailcount }}" {% endifequal %} >
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">邮箱密码</label>
+                        <div class="col-lg-3">
+                            <input id="input-password" type="password" placeholder="************" class="form-control" {% ifequal message 'fasle' %}{% else %} value="{{ message.password }}" {% endifequal %}>
+                            {% ifequal message 'fasle' %}
+                            {% else %}
+                                <span class="help-block m-b-none" style="color:#ac2925;"><i class="fa fa-info-circle"></i> 因密码已做加密处理，更新配置时，需重新填写密码</span>
+                            {% endifequal %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">服务器地址</label>
+                        <div class="col-lg-3">
+                            <input id="input-server"  placeholder="mail.contoso.com" class="form-control" {% ifequal message 'fasle' %}{% else %} value="{{ message.mailserver }}" {% endifequal %}>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">测试收件人地址</label>
+                        <div class="col-lg-3">
+                            <input id="input-testmail"  placeholder="count@contoso.com" class="form-control" >
+                        </div>
+                    </div>
+                    {% ifequal message 'fasle' %}
+                        <input style="text-align: center" class="btn btn-primary"  value="测试发送" type="submit">
+                        </form>
+                    {% else %}
+                        <input style="text-align: center" class="btn btn-primary" value="更新配置" type="submit">
+                        </form>
+                        <button style="position: absolute;bottom: 15px;left: 101px" onclick="delsendmysql()" class="btn btn-primary">清除配置</button>
+                    {% endifequal %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">密码过期提醒</div>
+                <div class="panel-body">
+                    <form  class="form-horizontal" id="changepwdremindertips"  method="post" onsubmit="return changepwdremindertips();">
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">开启过期提醒</label>
+                            <div class="col-lg-3">
+                                <input id="mySwitch11" type="checkbox"  >
+                                <span class="help-block m-b-none" style="color:#ac2925;"><i class="fa fa-info-circle"></i>  开启后每天十点提醒密码还有14、7、3、2、1天过期的账号</span>
+                            </div>
+                        </div>
+                        <input style="text-align: center" class="btn btn-primary"  value="保存修改" type="submit">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--end footer-->
+    <!--main content start-->
+{% endblock %}
+
+{% block custom_js %}
+    <script src="/static/easyfrom/easyform.js"></script>
+    <script src="/static/js/bootstrap-select.js"></script>
+    <script src="/static/switch/bootstrap-switch.min.js"></script>
+    <script src="/static/js/fixXss.js"></script>
+    <script type="text/javascript">
+        $('#mySwitch11').bootstrapSwitch({
+            onText:'开',
+            offText:'关'});
+
+        $(document).ready(function ()
+        {
+            $('#baseform').easyform();
+            $('#nomangeapi').easyform();
+            $('#mailsite').easyform();
+            $('#titlesite').easyform();
+        });
+        $(function () {
+            var show_count = 20;   //要显示的条数
+            var count = 1;    //递增的开始值，这里是你的ID
+            $("#btn_addtrone").click(function () {
+
+                var length = $("#dynamicTableone tbody tr").length;
+                //alert(length);
+                if (length < show_count)    //点击时候，如果当前的数字小于递增结束的条件
+                {
+                    $("#tabone tbody tr").clone().appendTo("#dynamicTableone tbody");   //在表格后面添加一行
+                }
+            });
+
+
+        });
+
+        function deltrone(opp) {
+            var length = $("#dynamicTableone tbody tr").length;
+            //alert(length);
+            if (length <= 1) {
+                alert("至少保留一行");
+            } else {
+                $(opp).parent().parent().remove();//移除当前行
+            }
+        }
+        $(function () {
+            var show_count = 20;   //要显示的条数
+            var count = 1;    //递增的开始值，这里是你的ID
+            $("#btn_addtrtwo").click(function () {
+                var length = $("#dynamicTabletwo tbody tr").length;
+                //alert(length);
+                if (length < show_count)    //点击时候，如果当前的数字小于递增结束的条件
+                {
+                    $("#tabtwo tbody tr").clone().appendTo("#dynamicTabletwo tbody");   //在表格后面添加一行
+                }
+            });
+        });
+        function deltrtwo(opp) {
+            var length = $("#dynamicTabletwo tbody tr").length;
+            //alert(length);
+            if (length <= 1) {
+                alert("至少保留一行");
+            } else {
+                $(opp).parent().parent().remove();//移除当前行
+            }
+        }
+
+        $(function () {
+            var show_count = 20;   //要显示的条数
+            var count = 1;    //递增的开始值，这里是你的ID
+            $("#btn_addtrthree").click(function () {
+                var length = $("#dynamicTablethree tbody tr").length;
+                //alert(length);
+                if (length < show_count)    //点击时候，如果当前的数字小于递增结束的条件
+                {
+                    $("#tabthree tbody tr").clone().appendTo("#dynamicTablethree tbody");   //在表格后面添加一行
+                }
+            });
+        });
+        function deltrthree(opp) {
+            var length = $("#dynamicTablethree tbody tr").length;
+            //alert(length);
+            if (length <= 1) {
+                alert("至少保留一行");
+            } else {
+                $(opp).parent().parent().remove();//移除当前行
+            }
+        }
+    </script>
+    <script>
+        $("#savemaneg").click(function(){
+            document.getElementById("nomangeapi").style.display = "none";
+            document.getElementById("changeradio").style.display = "block";
+            $("input:radio[name='check']").attr("checked",false);
+            return false
+        });
+        function testrs() {
+            document.getElementById("sendmessag").style.display = "none";
+            document.getElementById("changeradio1").style.display = "block";
+            $("input:radio[name='check1']").attr("checked",false);
+        }
+        function backe1() {
+            document.getElementById("haveapiin").style.display = "none";
+            document.getElementById("changeradio").style.display = "block";
+            $("input:radio[name='check']").attr("checked",false);
+        }
+        function backe2() {
+            document.getElementById("hasmangeapi").style.display = "none";
+            document.getElementById("changeradio").style.display = "block";
+            $("input:radio[name='check']").attr("checked",false);
+        }
+
+        function getVal() {
+            var inputpubmailou = document.getElementById("inputpubmailou").value;
+            var inputmailgroupou = document.getElementById("inputmailgroupou").value;
+            var inputpwdlen = document.getElementById("inputpwdlen").value;
+            var inputjzou = document.getElementById("inputjzou").value;
+            var inputjzgroup = document.getElementById("inputjzgroup").value;
+            var inputunlockgroup = document.getElementById("inputunlockgroup").value;
+            var inputpubmailDB = document.getElementById("inputpubmailDB").value;
+            var inputpubmaillanwei = document.getElementById("inputpubmaillanwei").value;
+            var networklist=[];
+            var networkname=[];
+            var vnplist=[];
+            var vpnname=[];
+            var WiFilist=[];
+            var WiFiname=[];
+            var tabone = document.getElementById("dynamicTableone").getElementsByTagName('input');
+            for(var i = 0; i < tabone.length; i++)
+            {
+                if(tabone[i].type=='text'){
+                    if (tabone[i].name=='name'){
+                        networklist.push(tabone[i].value)
+                    }
+                    else{
+                        networkname.push(tabone[i].value)
+                    }
+                }
+            }
+            var tabtwo = document.getElementById("dynamicTabletwo").getElementsByTagName('input');
+            for(var m = 0; m < tabtwo.length; m++)
+            {
+                if(tabtwo[m].type=='text'){
+                    if (tabtwo[m].name=='name'){
+                        vnplist.push(tabtwo[m].value)
+                    }
+                    else{
+                        vpnname.push(tabtwo[m].value)
+                    }
+                }
+            }
+            var tabthree = document.getElementById("dynamicTablethree").getElementsByTagName('input');
+            for(var x = 0; x < tabthree.length; x++)
+            {
+                if(tabthree[x].type=='text'){
+                    if (tabthree[x].name=='name'){
+                        WiFilist.push(tabthree[x].value)
+                    }
+                    else{
+                        WiFiname.push(tabthree[x].value)
+                    }
+                }
+            }
+            $.ajax({
+                url:{% url "saveallmessage" %},
+                type:'POST',
+                dataType:'json',
+                async: false,
+                traditional:true,
+                data:{"inputpubmailDB":inputpubmailDB,"inputpubmaillanwei":inputpubmaillanwei,"WiFiname":WiFiname,"WiFilist":WiFilist,"vnplist":vnplist,"vpnname":vpnname,"networklist":networklist,"networkname":networkname,"inputpubmailou":inputpubmailou,"inputmailgroupou":inputmailgroupou,"inputpwdlen":inputpwdlen,"inputjzou":inputjzou,"inputjzgroup":inputjzgroup,"inputunlockgroup":inputunlockgroup},
+                success:function (data) {
+                    if (data['status']){
+                        swal({
+                                title: "恭喜！",
+                                text: "信息保存成功",
+                                type: "success",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            },
+                            function () {
+                                location.reload()
+                            });
+                        return false
+                    }
+                    else {
+                        swal({
+                            title: "错误！",
+                            text: "请检查信息是否正确",
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                        return false
+                    }
+                }
+            });
+            return false
+        }
+
+        function updateconfigsql() {
+            var inputpubmailou = document.getElementById("inputpubmailou").value;
+            var inputmailgroupou = document.getElementById("inputmailgroupou").value;
+            var inputpwdlen = document.getElementById("inputpwdlen").value;
+            var inputjzou = document.getElementById("inputjzou").value;
+            var inputjzgroup = document.getElementById("inputjzgroup").value;
+            var inputunlockgroup = document.getElementById("inputunlockgroup").value;
+            var inputpubmailDB = document.getElementById("inputpubmailDB").value;
+            var inputpubmaillanwei = document.getElementById("inputpubmaillanwei").value;
+            var networklist=[];
+            var networkname=[];
+            var vnplist=[];
+            var vpnname=[];
+            var WiFilist=[];
+            var WiFiname=[];
+            var tabone = document.getElementById("dynamicTableone").getElementsByTagName('input');
+            for(var i = 0; i < tabone.length; i++)
+            {
+                if(tabone[i].type=='text'){
+                    if (tabone[i].name=='name'){
+                        networklist.push(tabone[i].value)
+                    }
+                    else{
+                        networkname.push(tabone[i].value)
+                    }
+                }
+            }
+            var tabtwo = document.getElementById("dynamicTabletwo").getElementsByTagName('input');
+            for(var m = 0; m < tabtwo.length; m++)
+            {
+                if(tabtwo[m].type=='text'){
+                    if (tabtwo[m].name=='name'){
+                        vnplist.push(tabtwo[m].value)
+                    }
+                    else{
+                        vpnname.push(tabtwo[m].value)
+                    }
+                }
+            }
+            var tabthree = document.getElementById("dynamicTablethree").getElementsByTagName('input');
+            for(var x = 0; x < tabthree.length; x++)
+            {
+                if(tabthree[x].type=='text'){
+                    if (tabthree[x].name=='name'){
+                        WiFilist.push(tabthree[x].value)
+                    }
+                    else{
+                        WiFiname.push(tabthree[x].value)
+                    }
+                }
+            }
+            swal({
+                title: "确定更新吗？",
+                text: "更新后会覆盖原有配置",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定'
+            }, function () {
+                $.ajax({
+                    url:{% url "updateconfigall" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    traditional:true,
+                    data:{"inputpubmailDB":inputpubmailDB,"inputpubmaillanwei":inputpubmaillanwei,"WiFiname":WiFiname,"WiFilist":WiFilist,"vnplist":vnplist,"vpnname":vpnname,"networklist":networklist,"networkname":networkname,"inputpubmailou":inputpubmailou,"inputmailgroupou":inputmailgroupou,"inputpwdlen":inputpwdlen,"inputjzou":inputjzou,"inputjzgroup":inputjzgroup,"inputunlockgroup":inputunlockgroup},
+                    success:function (data) {
+                        if (data['status']){
+                            swal({
+                                    title: "恭喜！",
+                                    text: "信息更新成功",
+                                    type: "success",
+                                    showCancelButton: false,
+                                    closeOnConfirm: false
+                                },
+                                function () {
+                                    location.reload()});
+                            return false
+                        }
+
+                        else {
+                            swal({
+                                title: "错误！",
+                                text: "请检查信息是否正确",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: false
+                            });
+                            return false
+                        }
+                    }
+                });
+            });
+            return false
+        }
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('input[type=radio][name=check]').change(function() {
+                if (this.value == 'True') {
+                    document.getElementById("changeradio").style.display = "none";
+                    document.getElementById("hasmangeapi").style.display = "block";
+                }
+                else if (this.value == 'False') {
+                    document.getElementById("changeradio").style.display = "none";
+                    document.getElementById("nomangeapi").style.display = "block";
+                }
+                else  {
+                    document.getElementById("changeradio").style.display = "none";
+                    document.getElementById("haveapiin").style.display = "block";
+                }
+            });
+        });
+        $(document).ready(function() {
+            $('input[type=radio][name=check1]').change(function() {
+                if (this.value == 'True') {
+                    document.getElementById("changeradio1").style.display = "none";
+                    document.getElementById("sendmessag").style.display = "block";
+                }
+                {#else if (this.value == 'False') {#}
+                {#    document.getElementById("changeradio1").style.display = "none";#}
+                {#    document.getElementById("nosendmessag").style.display = "block";#}
+
+            });
+        });
+        $(document).ready(function() {
+            $('input[type=radio][name=check2]').change(function() {
+                if (this.value == 'True') {
+                    document.getElementById("changeradio2").style.display = "none";
+                    document.getElementById("sendmessag").style.display = "block";
+                }
+
+            });
+        });
+
+        function updatetestsend() {
+            var inputadd = document.getElementById("input-address").value;
+            var inputusername = document.getElementById("input-mail").value;
+            var inputpassword = document.getElementById("input-password").value;
+            var inputserver = document.getElementById("input-server").value;
+            var inputtestmail = document.getElementById("input-testmail").value;
+            swal({
+                title: "确定更新吗？",
+                text: "更新后会覆盖原有配置",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定'
+            }, function () {
+                $.ajax({
+                    url:{% url "sendmailtest" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    data:{"inputadd":inputadd,"inputusername":inputusername,"inputpassword":inputpassword,"inputserver":inputserver,'inputtestmail':inputtestmail},
+                    success:function (data) {
+                        if (data['status']){
+                            swal({
+                                    title: "恭喜,测试已经发送成功。",
+                                    text: "信息更新成功",
+                                    type: "success",
+                                    showCancelButton: false,
+                                    closeOnConfirm: false
+                                },
+                                function () {
+                                    location.reload()});
+                            return false
+                        }
+                        else {
+                            swal({
+                                title: "错误！邮件发送失败",
+                                text: "请检查信息是否正确",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: false
+                            });
+                            return false
+                        }
+                    }
+                });
+            });
+            return false
+        }
+        function testsend() {
+            var inputadd = document.getElementById("input-address").value;
+            var inputusername = document.getElementById("input-mail").value;
+            var inputpassword = document.getElementById("input-password").value;
+            var inputserver = document.getElementById("input-server").value;
+            var inputtestmail = document.getElementById("input-testmail").value;
+            $.ajax({
+                url:{% url "sendmailtest" %},
+                type:'POST',
+                dataType:'json',
+                async: false,
+                data:{"inputadd":inputadd,"inputusername":inputusername,"inputpassword":inputpassword,"inputserver":inputserver,'inputtestmail':inputtestmail},
+                success:function (data) {
+                    if (data['status']){
+                        swal({
+                            title: "恭喜，测试邮件发送成功",
+                            text: "已保存配置",
+                            type: "success",
+                            showCancelButton: false,
+                            closeOnConfirm: true
+                        }, function () {
+                            location.reload()
+                        });
+                        return false
+                    }
+                    else {
+                        swal({
+                            title: "错误！",
+                            text: "请检查信息是否正确",
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: true
+                        });
+                        return false
+                    }
+                }
+            });
+            return false
+        }
+        function testaip() {
+            var inputapiurl = document.getElementById("inputapiurl").value;
+            var inputestuser = document.getElementById("inputestuser").value;
+            $.ajax({
+                url:{% url "apimanger" %},
+                type:'POST',
+                dataType:'json',
+                async: false,
+                data:{"inputapiurl":inputapiurl,"inputestuser":inputestuser},
+                success:function (data) {
+                    if (data['status']){
+                        swal({
+                            title: "请确认参数信息",
+                            text: data['status'],
+                            type: "success",
+                            showCancelButton: true,
+                            closeOnConfirm: false,
+                            confirmButtonText:'确定保存'
+                        }, function () {
+                            $.ajax({
+                                url:{% url "saveapimanger" %},
+                                type:'POST',
+                                dataType:'json',
+                                async: false,
+                                data:{"inputapiurl":inputapiurl},
+                                success:function (data) {
+                                    if (data['status']){
+                                        swal({
+                                            title: "恭喜！",
+                                            text: "接口保存成功",
+                                            type: "success",
+                                            showCancelButton: false,
+                                            closeOnConfirm: true
+                                        }, function () {
+                                            location.reload()
+                                        });
+                                    }
+                                    else {
+                                        swal({
+                                            title: "错误！",
+                                            text: "配置出错",
+                                            type: "error",
+                                            showCancelButton: false,
+                                            closeOnConfirm: true
+                                        },function () {
+                                            location.reload()
+                                        });
+                                    }
+                                }
+                            });
+
+                        })
+                    }
+                    else {
+                        swal({
+                            title: "错误！",
+                            text: "请检查信息是否正确",
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                    }
+                }
+            })
+
+        }
+
+
+
+        function updateonlymanger() {
+            var inputpub = document.getElementById("inputpub").value;
+            var inputgroup = document.getElementById("inputgroup").value;
+            var inputdfs = document.getElementById("inputdfs").value;
+            var inputnetwork = document.getElementById("inputnetwork").value;
+            var inputvpn = document.getElementById("inputvpn").value;
+            swal({
+                title: "确定更新吗？",
+                text: "更新后会覆盖原有配置",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定'
+            }, function () {
+                $.ajax({
+                    url:{% url "mangeronelyupdate" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    data:{"inputpub":inputpub,"inputgroup":inputgroup,"inputdfs":inputdfs,"inputnetwork":inputnetwork,'inputvpn':inputvpn},
+                    success:function (data) {
+                        if (data['status']){
+                            swal({
+                                    title: "恭喜！",
+                                    text: "信息更新成功",
+                                    type: "success",
+                                    showCancelButton: false,
+                                    closeOnConfirm: false
+                                },
+                                function () {
+                                    location.reload()});
+                            return false
+                        }
+                        else {
+                            swal({
+                                title: "错误！",
+                                text: "请检查信息是否正确",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: false
+                            });
+                            return false
+                        }
+                    }
+                });
+            })
+            return false
+        }
+
+        function saveonlymanger() {
+            var inputpub = document.getElementById("inputpub").value;
+            var inputgroup = document.getElementById("inputgroup").value;
+            var inputdfs = document.getElementById("inputdfs").value;
+            var inputnetwork = document.getElementById("inputnetwork").value;
+            var inputvpn = document.getElementById("inputvpn").value;
+            $.ajax({
+                url:{% url "mangeronelysave" %},
+                type:'POST',
+                dataType:'json',
+                async: false,
+                data:{"inputpub":inputpub,"inputgroup":inputgroup,"inputdfs":inputdfs,"inputnetwork":inputnetwork,'inputvpn':inputvpn},
+                success:function (data) {
+                    if (data['status']){
+                        swal({
+                                title: "恭喜！",
+                                text: "审批人信息保存成功",
+                                type: "success",
+                                showCancelButton: false,
+                                closeOnConfirm: false
+                            },
+                            function () {
+                                location.reload()});
+                        return false
+                    }
+                    else {
+                        swal({
+                            title: "错误！",
+                            text: "请检查信息是否正确",
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                        return false
+                    }
+                }
+            });
+            return false
+        }
+
+
+        function updateoutapimysql() {
+            var inputtitle = document.getElementById("inputtitle").value;
+            var inputheard = document.getElementById("inputheard").value;
+            swal({
+                title: "确定更新吗？",
+                text: "更新后会覆盖原有配置",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定'
+            }, function () {
+                $.ajax({
+                    url:{% url "titleupdateqsl" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    data:{"inputtitle":inputtitle,"inputheard":inputheard},
+                    success:function (data) {
+                        if (data['status']){
+                            swal({
+                                    title: "恭喜！",
+                                    text: "网站标题更新成功",
+                                    type: "success",
+                                    showCancelButton: false,
+                                    closeOnConfirm: false
+                                },
+                                function () {
+                                    location.reload()});
+                            return false
+                        }
+                        else {
+                            swal({
+                                title: "错误！",
+                                text: "请检查信息是否正确",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: false
+                            });
+                            return false
+                        }
+                    }
+                });
+            });
+            return false
+        }
+
+        function savetitle() {
+            var inputtitle = document.getElementById("inputtitle").value;
+            var inputheard = document.getElementById("inputheard").value;
+            $.ajax({
+                url:{% url "titlesaveqsl" %},
+                type:'POST',
+                dataType:'json',
+                async: false,
+                data:{"inputtitle":inputtitle,"inputheard":inputheard},
+                success:function (data) {
+                    if (data['status']){
+                        swal({
+                                title: "恭喜！",
+                                text: "信息保存成功",
+                                type: "success",
+                                showCancelButton: false,
+                                closeOnConfirm: false
+                            },
+                            function () {
+                                location.reload()});
+                        return false
+                    }
+                    else {
+                        swal({
+                            title: "错误！",
+                            text: "请检查信息是否正确",
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                        return false
+                    }
+                }
+            });
+            return false
+        }
+        function delonlymanger() {
+            swal({
+                title: "确定删除吗？",
+                text: "删除后需要重置配置",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定删除'
+            }, function () {
+                $.ajax({
+                    url:{% url "delmysqlmanger" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    success:function (data) {
+                        if (data['status']){
+                            swal({
+                                title: "恭喜！",
+                                text: "审批人信息删除成功",
+                                type: "success",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            }, function () {
+                                location.reload()
+                            });
+                        }
+                        else {
+                            swal({
+                                title: "错误！",
+                                text: "配置删除出错",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            },function () {
+                                location.reload()
+                            });
+                        }
+                    }
+                });
+            })
+        }
+        function deloutapimysql() {
+            swal({
+                title: "确定删除吗？",
+                text: "删除后需要重置配置",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定删除'
+            }, function () {
+                $.ajax({
+                    url:{% url "deloutapi" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    success:function (data) {
+                        if (data['status']){
+                            swal({
+                                title: "恭喜！",
+                                text: "接口删除成功",
+                                type: "success",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            }, function () {
+                                location.reload()
+                            });
+                        }
+                        else {
+                            swal({
+                                title: "错误！",
+                                text: "配置删除出错",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            },function () {
+                                location.reload()
+                            });
+                        }
+                    }
+                });
+
+            })
+        }
+        function delapimysql() {
+            swal({
+                title: "确定删除吗？",
+                text: "删除后需要重置配置",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定删除'
+            }, function () {
+                $.ajax({
+                    url:{% url "delmysqlapi" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    success:function (data) {
+                        if (data['status']){
+                            swal({
+                                title: "恭喜！",
+                                text: "接口删除成功",
+                                type: "success",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            }, function () {
+                                location.reload()
+                            });
+                        }
+                        else {
+                            swal({
+                                title: "错误！",
+                                text: "配置删除出错",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            },function () {
+                                location.reload()
+                            });
+                        }
+                    }
+                });
+
+            })
+        }
+        function deltitle() {
+            swal({
+                title: "确定删除吗？",
+                text: "删除后需要重置配置",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定删除'
+            }, function () {
+                $.ajax({
+                    url:{% url "deltitlesql" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    success:function (data) {
+                        if (data['status']){
+                            swal({
+                                    title: "恭喜！",
+                                    text: "删除成功",
+                                    type: "success",
+                                    showCancelButton: false,
+                                    closeOnConfirm: true
+                                },
+                                function () {
+                                    location.reload()
+                                });
+                        }
+                        else {
+                            swal({
+                                title: "错误！",
+                                text: "配置删除出错",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            },function () {
+                                location.reload()
+                            });
+                        }
+                    }
+                });
+            });
+        }
+        function deluserphoneapimysql() {
+            swal({
+                title: "确定删除吗？",
+                text: "删除后需要重置配置",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定删除'
+            }, function () {
+                $.ajax({
+                    url:{% url "deluserphoneapi" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    success:function (data) {
+                        if (data['status']){
+                            swal({
+                                title: "恭喜！",
+                                text: "接口删除成功",
+                                type: "success",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            }, function () {
+                                location.reload()
+                            });
+                        }
+                        else {
+                            swal({
+                                title: "错误！",
+                                text: "配置删除出错",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            },function () {
+                                location.reload()
+                            });
+                        }
+                    }
+                });
+
+            })
+        }
+        function delsendapi() {
+            swal({
+                title: "确定删除吗？",
+                text: "删除后需要重置配置",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定删除'
+            }, function () {
+                $.ajax({
+                    url:{% url "delsendmesspi" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    success:function (data) {
+                        if (data['status']){
+                            swal({
+                                title: "恭喜！",
+                                text: "接口删除成功",
+                                type: "success",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            }, function () {
+                                location.reload()
+                            });
+                        }
+                        else {
+                            swal({
+                                title: "错误！",
+                                text: "配置删除出错",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            },function () {
+                                location.reload()
+                            });
+                        }
+                    }
+                });
+
+            })
+        }
+        function delconfigsql() {
+            swal({
+                    title: "确定删除吗？",
+                    text: "删除后需要重置配置",
+                    type: "warning",
+                    showCancelButton: true,
+                    closeOnConfirm: false,
+                    confirmButtonText:'确定删除'
+                }
+                ,
+                function () {
+                    $.ajax({
+                        url:{% url "delsqlconfig" %},
+                        type:'POST',
+                        dataType:'json',
+                        async: false,
+                        success:function (data) {
+                            if (data['status']){
+                                swal({
+                                    title: "恭喜！",
+                                    text: "删除成功",
+                                    type: "success",
+                                    showCancelButton: false,
+                                    closeOnConfirm: true
+                                }, function () {
+                                    location.reload()
+                                });
+                            }
+                            else {
+                                swal({
+                                    title: "错误！",
+                                    text: "配置删除出错",
+                                    type: "error",
+                                    showCancelButton: false,
+                                    closeOnConfirm: true
+                                },function () {
+                                    location.reload()
+                                });
+                            }
+                        }
+                    });
+
+                })
+        }
+        function delsendmysql() {
+            swal({
+                    title: "确定删除吗？",
+                    text: "删除后需要重置配置",
+                    type: "warning",
+                    showCancelButton: true,
+                    closeOnConfirm: false,
+                    confirmButtonText:'确定删除'
+                }
+                ,
+                function () {
+                    $.ajax({
+                        url:{% url "delmailsend" %},
+                        type:'POST',
+                        dataType:'json',
+                        async: false,
+                        success:function (data) {
+                            if (data['status']){
+                                swal({
+                                    title: "恭喜！",
+                                    text: "删除成功",
+                                    type: "success",
+                                    showCancelButton: false,
+                                    closeOnConfirm: true
+                                }, function () {
+                                    location.reload()
+                                });
+                            }
+                            else {
+                                swal({
+                                    title: "错误！",
+                                    text: "配置删除出错",
+                                    type: "error",
+                                    showCancelButton: false,
+                                    closeOnConfirm: true
+                                },function () {
+                                    location.reload()
+                                });
+                            }
+                        }
+                    });
+
+                })
+        }
+        function apiintest() {
+            var inputhasapion = document.getElementById("inputhasapion").value;
+            $.ajax({
+                url:{% url "testapinprocess" %},
+                type:'POST',
+                dataType:'json',
+                async: false,
+                data:{"inputhasapion":inputhasapion},
+                success:function (data) {
+                    if (data['status']){
+                        swal({
+                            title: "请确认参数信息",
+                            text: data['status'],
+                            type: "success",
+                            showCancelButton: true,
+                            closeOnConfirm: false,
+                            confirmButtonText:'确定'
+                        }, function () {
+                            $.ajax({
+                                url:{% url "savemangeapiin" %},
+                                type:'POST',
+                                dataType:'json',
+                                async: false,
+                                data:{"inputhasapion":inputhasapion},
+                                success:function (data) {
+                                    if (data['status']){
+                                        swal({
+                                            title: "恭喜！",
+                                            text: "接口保存成功",
+                                            type: "success",
+                                            showCancelButton: false,
+                                            closeOnConfirm: true
+                                        }, function () {
+                                            location.reload()
+                                        });
+                                    }
+                                    else {
+                                        swal({
+                                            title: "错误！",
+                                            text: "配置出错",
+                                            type: "error",
+                                            showCancelButton: false,
+                                            closeOnConfirm: true
+                                        },function () {
+                                            location.reload()
+                                        });
+                                    }
+                                }
+                            });
+
+                        })
+                    }
+                    else {
+                        swal({
+                            title: "错误！",
+                            text: "请检查信息是否正确",
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                    }
+                }
+            })
+
+        }
+        function usertophone() {
+            var inputphoneapiurl = document.getElementById("inputphoneapiurl").value;
+            var inputestusermess = document.getElementById("inputestusermess").value;
+            $.ajax({
+                url:{% url "getusermobile" %},
+                type:'POST',
+                dataType:'json',
+                async: false,
+                data:{"inputapiurl":inputphoneapiurl,"inputestuser":inputestusermess},
+                success:function (data) {
+                    if (data['status']){
+                        swal({
+                            title: "请确认参数信息",
+                            text: data['status'],
+                            type: "success",
+                            showCancelButton: true,
+                            closeOnConfirm: false,
+                            confirmButtonText:'确定'
+                        }, function () {
+                            $.ajax({
+                                url:{% url "saveusertophone" %},
+                                type:'POST',
+                                dataType:'json',
+                                async: false,
+                                data:{"inputapiurl":inputphoneapiurl},
+                                success:function (data) {
+                                    if (data['status']){
+                                        swal({
+                                            title: "恭喜！",
+                                            text: "获取手机号接口保存成功",
+                                            type: "success",
+                                            showCancelButton: false,
+                                            closeOnConfirm: true
+                                        }, function () {
+                                            location.reload()
+                                        });
+                                    }
+                                    else {
+                                        swal({
+                                            title: "错误！",
+                                            text: "配置出错",
+                                            type: "error",
+                                            showCancelButton: false,
+                                            closeOnConfirm: true
+                                        },function () {
+                                            location.reload()
+                                        });
+                                    }
+                                }
+                            });
+
+                        })
+                    }
+                    else {
+                        swal({
+                            title: "错误！",
+                            text: "请检查信息是否正确",
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                    }
+                }
+            })
+
+        }
+        function sendtpmessage() {
+            var inputphoneapi = document.getElementById("inputphoneapi").value;
+            var inputestphone = document.getElementById("inputestphone").value;
+            var inputesmessage = document.getElementById("inputesmessage").value;
+            $.ajax({
+                url:{% url "testmobilesend" %},
+                type:'POST',
+                dataType:'json',
+                async: false,
+                data:{"inputphoneapi":inputphoneapi,"inputestphone":inputestphone,"inputesmessage":inputesmessage},
+                success:function (data) {
+                    if (data['status']){
+                        swal({
+                            title: "请确认是否收到短信，返回参数：",
+                            text: data['status'],
+                            type: "success",
+                            showCancelButton: true,
+                            closeOnConfirm: false,
+                            confirmButtonText:'确定保存'
+                        }, function () {
+                            $.ajax({
+                                url:{% url "savephonesend" %},
+                                type:'POST',
+                                dataType:'json',
+                                async: false,
+                                data:{"inputphoneapi":inputphoneapi},
+                                success:function (data) {
+                                    if (data['status']){
+                                        swal({
+                                            title: "恭喜！",
+                                            text: "发送短信接口保存成功",
+                                            type: "success",
+                                            showCancelButton: false,
+                                            closeOnConfirm: true
+                                        }, function () {
+                                            location.reload()
+                                        });
+                                    }
+                                    else {
+                                        swal({
+                                            title: "错误！",
+                                            text: "配置出错",
+                                            type: "error",
+                                            showCancelButton: false,
+                                            closeOnConfirm: true
+                                        },function () {
+                                            location.reload()
+                                        });
+                                    }
+                                }
+                            });
+
+                        })
+                    }
+                    else {
+                        swal({
+                            title: "错误！",
+                            text: "请检查信息是否正确",
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                    }
+                }
+            })
+
+        }
+
+
+        $.ajax({
+            url:{% url "pwdremindertips" %},
+            type:'POST',
+            dataType:'json',
+            async: false,
+            data:{},
+            success:function (data) {
+                if (data['status']){
+                    $('#mySwitch11').bootstrapSwitch('state', true);
+                }
+                else {
+                    $('#mySwitch11').bootstrapSwitch('state', false);
+                }
+            }
+        });
+        function changepwdremindertips() {
+
+            var mailgroupissendvalue =  $('#mySwitch11').bootstrapSwitch('state');
+            $.ajax({
+                url:{% url "changepwdremindertips" %},
+                type:'POST',
+                dataType:'json',
+                async: false,
+                data:{"mailgroupissendvalue":mailgroupissendvalue},
+                success:function (data) {
+                    if (data['status']){
+                        swal({
+                            title: "恭喜！",
+                            text: "保存成功",
+                            type: "success",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        }, function () {
+                            location.reload()
+                        });
+                        return false
+                    }
+                    else {
+                        swal({
+                            title: "错误！",
+                            text: "配置出错",
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                        return false
+                    }
+                }
+
+            });
+            return false
+        }
+    </script>
+
+{% endblock %}

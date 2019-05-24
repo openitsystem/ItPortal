@@ -1,0 +1,240 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    <title>流程日志</title>
+{% endblock %}
+
+{% block custom_css %}
+    <link href="/static/css/bootstrap-select.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="/static/css/bootstrap-table.min.css">
+{% endblock %}
+
+{% block content %}
+
+    <!--page header start-->
+    <div class="page-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4>流程日志</h4>
+                    </div>
+                </div>
+            </div>
+    <!--page header end-->
+    <!--start page content-->
+    <div class="row">
+                <div class="col-sm-12">
+                    <h5 style="color: #23b7e5">文件夹权限申请日志</h5>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <div class="row" id="table">
+                                        <div class="col-md-12" id='relationgroupinfo'>
+                                            <div class="table-responsive">
+                                            <div class="portlet light bordered">
+                                                <div class="portlet-body">
+                                                   <table id="temptable">
+                                                   </table>
+                                                </div>
+                                            </div>
+                                                </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    <!--end page content-->
+    <!-- 模态框（Modal1） -->
+
+{% endblock %}
+
+{% block custom_js %}
+
+    <script src="/static/js/bootstrap-select.js"></script>
+    <script src="/static/js/bootstrap-table.min.js"></script>
+    <script src="/static/js/bootstrap-table-zh-CN.min.js"></script>
+    <script>
+
+    $(".click").click(function(){
+    $(this).attr("disabled","disabled");
+    });
+    $(function () {
+    //1.初始化Table
+    var oTable = new TableInit();
+    oTable.Init();
+    $.ajax({
+            url: {% url "getflowlog" %},
+            type: 'POST',
+            dataType: 'json',
+            success: function (data) {
+                $('#temptable').bootstrapTable('load',data['row']);
+            }
+        });
+{#    //2.初始化Button的点击事件#}
+{#    var oButtonInit = new ButtonInit();#}
+{#    oButtonInit.Init();#}
+    });
+
+
+var TableInit = function () {
+    var oTableInit = new Object();
+    //初始化Table
+    oTableInit.Init = function () {
+        $('#temptable').bootstrapTable({
+{#            url: 'relationconfig',         //请求后台的URL（*）#}
+{#            method: 'get',                      //请求方式（*）#}
+            toolbar: '#toolbar',                //工具按钮用哪个容器
+            striped: true,                      //是否显示行间隔色
+            cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+            pagination: true,                   //是否显示分页（*）
+            sortable: true,                     //是否启用排序
+            sortOrder: "DESC",                   //排序方式
+            queryParams: oTableInit.queryParams,//传递参数（*）
+            sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+            pageNumber:1,                       //初始化加载第一页，默认第一页
+            pageSize: 10,                       //每页的记录行数（*）
+            pageList: [10, 20, 50, 100],        //可供选择的每页的行数（*）
+            search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+            strictSearch: false,                //服务器搜索
+            showColumns: false,                  //是否显示所有的列
+            showRefresh: false,                  //是否显示刷新按钮
+            minimumCountColumns: 2,             //最少允许的列数
+            clickToSelect: true,                //是否启用点击选中行
+{#            height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度#}
+            uniqueId: "id",                     //每一行的唯一标识，一般为主键列
+            showToggle:false,                    //是否显示详细视图和列表视图的切换按钮
+            cardView: false,                    //是否显示详细视图
+            detailView: false,                   //是否显示父子表
+            columns: [ {
+                field: 'id',
+                title: 'id'
+            }, {
+                field: 'username',
+                title: '权限使用人AD'
+            }, {
+                field: 'displayName',
+                title: '权限使用人',
+                formatter : function(value,
+                                     row, index) {
+                    return fixXss(row["displayName"]);
+                }
+            },{
+                field: 'group_name',
+                title: '权限名称'
+            },
+            {
+                field: 'submit_time',
+                title: '提交时间'
+            },
+            {
+                field: 'director_adaccount',
+                title: '主管AD'
+            }
+            ,
+            {
+                field: 'director_name',
+                title: '主管',
+                formatter : function(value,
+                                     row, index) {
+                    return fixXss(row["director_name"]);
+                }
+            }
+            ,
+            {
+                field: 'director_status',
+                title: '主管审批状态'
+            }
+            ,
+            {
+                field: 'director_time',
+                title: '主管审批时间'
+            }
+            ,
+            {
+                field: 'relation_adaccount',
+                title: '文件管理员AD'
+            }
+            ,
+            {
+                field: 'relation_name',
+                title: '文件管理员',
+                formatter : function(value,
+                                     row, index) {
+                    return fixXss(row["relation_name"]);
+                }
+            }
+            ,
+            {
+                field: 'relation_status',
+                title: '文件管理员审批状态'
+            }
+            ,
+            {
+                field: 'relation_time',
+                title: '文件管理员审批时间'
+            }
+            ,{
+                field: 'flow_status',
+                title: '流程状态',
+                formatter : function(value, row, index) {
+                    if (value==0){
+                        return  '已经提交,请等待主管审批';
+                    }
+                    else if(value==1){
+                        return  '主管已审批，等待文件夹管理员审批';
+                    }
+                    else if(value==2){
+                        return  '文件夹管理人已审批，等待开通';
+                    }
+                    else if(value==3){
+                        return  '已经开通成功';
+                    }
+                    else if(value==4){
+                        return  '主管审批不同意';
+                    }
+                    else if(value==5){
+                        return  '文件夹管理人审批不同意';
+                    }
+                    else if(value==7){
+                        return  '已经被文件夹管理人从组里移除';
+                    }
+                    else {
+                        return  '请联系IT小哥';
+                    }
+
+                }
+            }
+            ,
+            {
+                field: 'end_time',
+                title: '最终时间'
+            },{
+                field: 'authority_applicant',
+                title: '权限申请AD'
+            }
+            ]
+        });
+
+    };
+
+
+    //得到查询的参数
+    oTableInit.queryParams = function (params) {
+        var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+            limit: params.limit,   //页面大小
+            offset: params.offset,  //页码
+            departmentname: $("#txt_search_departmentname").val(),
+            statu: $("#txt_search_statu").val()
+        };
+        return temp;
+    };
+    return oTableInit;
+};
+
+    </script>
+
+{% endblock %}

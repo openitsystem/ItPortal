@@ -1,0 +1,123 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    <title>用户信息查询</title>
+{% endblock %}
+
+{% block custom_css %}
+
+    <link href="/static/easyfrom/easyform.css" rel="stylesheet" type="text/css">
+    <link href="/static/sweetalert/sweetalert.css" rel="stylesheet">
+
+    <!--template css-->
+{% endblock %}
+
+{% block content %}
+
+        <h1 style='text-align: center;margin-top: 50px' class="text-success"> 用户信息查询</h1>
+        <div class="col-sm-offset-1 col-md-10" style="margin-top: 50px">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <span aria-hidden="true" class="icon-settings"></span>
+                    账号信息查询 :
+
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal" id="pwdform" method="post" action="/UserProfile/" style="margin-top: 15px">
+                        <div class="form-group">
+                            <label class="col-sm-2 col-sm-offset-1 control-label" style="margin-top: 5px">用户名:</label>
+                            <div class="col-sm-7"><input type="text" id="username" name="username" class="form-control" value="" autocomplete="off"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 col-sm-offset-1 control-label" style="margin-top: 5px"> 密 码:</label>
+                            <div class="col-sm-7"><input type="password" id="password" name="password" class="form-control" value=""></div>
+                        </div>
+                        <div class="form-group">
+                            <div style="text-align: center">
+                                <p style="color: red;">(仅用来验证密码准确性,若无需验证则不用输入密码)</p>
+                                <button type="submit" class="btn btn-sm btn-primary">提交</button>
+                            </div>
+                        </div>
+                    </form>
+                    <table  class="table" id="table" >
+                        <thead style="text-align: center">
+                        <tr >
+                            <th style="text-align: center">账号信息</th>
+                            <td >{{ account }}</td>
+                        </tr>
+                        {#                        <tr class="active">#}
+                        <tr >
+                            <th style="text-align: center">密码验证</th>
+                            <td>{{ pwd }}</td>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center">是否锁定</th>
+                            <td>{{ IsAccountLocked  }}</td>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center">邮箱地址</th>
+                            <td>{{ mail  }}</td>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center">邮箱数据库</th>
+                            <td>{{ homeMDB  }}</td>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center">密码到期时间</th>
+                            <td>{{ PasswordExpirationDate }}</td>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center">mail组</th>
+                            <td>{{ mailgroup }}</td>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center" >共享组</th>
+                            <td>{{ dfsgroup }}</td>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center">VPN权限</th>
+                            <td>{{ vpngroup }}</td>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center">上网组</th>
+                            <td>{{ intgroup }}</td>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center">无线组</th>
+                            <td>{{ wifigroup }}</td>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center">所有群组</th>
+                            <td>{{ allgroup }}</td>
+                        </tr>
+                        </thead>
+
+
+                    </table>
+                </div>
+            </div>
+        </div><!--col-md-6-->
+
+{% endblock %}
+
+{% block custom_js %}
+    <script src="/static/easyfrom/easyform.js"></script>
+    <script src="/static/sweetalert/sweetalert.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script>
+        $(document).ready(function ()
+        {
+            $('#pwdform').easyform();
+        });
+
+        function fn_table(){
+            var userid=  $("#table").find("thead").find("tr:first").find("td:last").html();
+            if(userid){
+                $("#table").show();
+            }else{
+                $("#table").hide();
+            }
+        };
+        fn_table();
+    </script>
+{% endblock %}

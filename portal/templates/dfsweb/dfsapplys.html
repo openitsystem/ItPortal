@@ -1,0 +1,362 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    <title>多人文件夹权限申请</title>
+{% endblock %}
+
+{% block custom_css %}
+<link href="/static/css/bootstrap-select.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block content %}
+
+    <!--page header start-->
+    <div class="page-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4>多人申请文件夹权限</h4>
+                    </div>
+                </div>
+            </div>
+    <!--page header end-->
+    <!--start page content-->
+    <div class="row">
+                <div class="col-sm-12">
+                    <h5 style="color: #23b7e5">文件夹权限申请成功后 请您及时通知 【主管】【文件夹管理员】进行审批！若权限审批完成后，15分钟后需要您注销或者重启电脑生效！</h5>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <fieldset class="jquery-Ui-fieldset">
+                                               <div class="form-group">
+                                                    <label  class="col-md-4 control-label">添加AD账户</label>
+                                                     <input class="form-control" id="addname123" name="setattribute"  placeholder="如果是多个账号，请用换行（Enter回车)" readonly="readonly" style="width: 50%;border:0px">
+                                                    <textarea class="form-control" rows="5" id="groupmembers" placeholder="all&#10;test&#10;XXXXX" onkeyup="value=value.replace(/[^\r\n\a-\z\A-\Z\.\-\_0-9]/g,'')"></textarea>
+                                                     <span id="membersnull" class="help-block" style="display:none;color:#e73d4a">成员不能为空×</span>
+                                                </div>
+                                                <select id="level1id" class="selectpicker" data-hide-disabled="true" data-live-search="true">
+                                                    <option value="-1" >请选择第一级目录</option>
+                                                     {% for level1 in level1list %}
+                                                        <option value='{{ level1.level1_id}}'>{{ level1.name}}</option>
+                                                     {% endfor %}
+                                                </select>
+                                                <select id="level2id" class="selectpicker" data-hide-disabled="true" data-live-search="true">
+                                                   <option value="-1" >请选择第二级目录</option>
+                                                </select>
+                                                <select id="level3id" class="selectpicker" data-hide-disabled="true" data-live-search="true" multiple="multiple" title="请选择第三级目录">
+                                                    <option value="-1" >全选第三级目录</option>
+                                                </select>
+                                                <select id="groupid" class="selectpicker">
+                                                      <option value="-1">请选择开通的权限</option>
+                                                      <option value="0" >查看</option>
+                                                      <option value="1" >修改</option>
+                                                </select>
+                                            <button type="button" class="btn btn-primary btn-rounded btn-border btn-sm" onclick="addapplyinfo()"><i class="fa fa-cloud-download"></i>&nbsp添加</button>
+                                            </fieldset>
+                                        </div><!--end col-->
+
+                                    </div><!--end row-->
+                                    <div class="row" id="table">
+                                        <div class="col-md-12" id='applyinfo'style="display: none">
+                                            <div class="table-responsive">
+                                            <div class="portlet light bordered">
+                                                <div align="center">
+                                                    <button  type="button" class="btn btn-primary btn-rounded btn-border btn-sm click" style=" width:300px;font-size: 18px " id="saveapply" onclick="saveapplyinfo()">提交</button>
+                                                </div>
+                                                <div class="portlet-body">
+                                                   <table class="table table-striped table-bordered table-hover  order-column" id="temptable">
+                                                       <thead >
+                                                        <tr >
+                                                            <th style="display: none">ID</th>
+                                                            <th>申请目录</th>
+                                                            <th>申请权限</th>
+                                                            <th>申请权限账号</th>
+                                                            <th>文件夹管理员</th>
+                                                            <th>操作</th>
+                                                        </tr>
+                                                       </thead>
+                                                       <tbody id="showtable">
+                                                       </tbody>
+                                                   </table>
+                                                </div>
+
+                                            </div>
+                                                </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    <!--end page content-->
+
+{% endblock %}
+
+{% block custom_js %}
+    <script src="/static/js/bootstrap-select.js"></script>
+    <script>
+    $(".click").click(function(){
+    $(this).attr("disabled","disabled");
+});
+
+    $(document).ready(function(){
+            $("#level1id").change(function()
+            {
+                var level1idinfo= $("#level1id").val();
+                if (level1idinfo != -1){
+                    $.ajax({
+                        url:{% url "level2info" %},
+                        type:'POST',
+                        dataType:'json',
+                        data:{'level1idinfo':level1idinfo},
+                        success:function(data){
+                            var aa=data['dict_level2'];
+                            var $emplevel2 = $("#level2id")
+                            $emplevel2.empty();
+                            $emplevel2.append('<option value="-1" >请选择第二级目录</option>');
+                            var $emplevel3 = $("#level3id")
+                            $emplevel3.empty();
+                            $emplevel3.append('<option value="-1" >全选第三级目录</option>');
+                            for(var i=0;i<aa.length;i++){
+                                var $newOption ="<option value='" +aa[i][0] +"'>"+ aa[i][1]+"</option>";
+                                 $emplevel2.append($newOption);
+                            }
+                            $('#level2id').selectpicker('render');
+                            $('#level2id').selectpicker('refresh');
+                            $('#level3id').selectpicker('render');
+                            $('#level3id').selectpicker('refresh');
+                        }
+                    });
+                }
+                else {
+                            var $emplevel2 = $("#level2id")
+                            $emplevel2.empty();
+                            $emplevel2.append('<option value="-1" >请选择第二级目录</option>');
+                            $('#level2id').selectpicker('render');
+                            $('#level2id').selectpicker('refresh');
+                             var $emplevel3 = $("#level3id")
+                            $emplevel3.empty();
+                            $emplevel3.append('<option value="-1" >全选第三级目录</option>');
+                            $('#level3id').selectpicker('render');
+                            $('#level3id').selectpicker('refresh');
+                }
+
+            });
+           $("#level2id").change(function(){
+                        var level2idinfo= $("#level2id").val();
+
+                if (level2idinfo != -1){
+                    $.ajax({
+                        url:{% url "level3info" %},
+                        type:'POST',
+                        dataType:'json',
+                        data:{'level2idinfo':level2idinfo},
+                        success:function(data){
+                            var aa=data['dict_level3'];
+                            var $emplevel3 = $("#level3id")
+                            $emplevel3.empty();
+                            $emplevel3.append('<option value="-1" >全选第三级目录</option>');
+                            for(var i=0;i<aa.length;i++){
+                                var $newOption ="<option value='" +aa[i][0] +"'>"+ aa[i][1]+"</option>";
+                                 $emplevel3.append($newOption);
+                            }
+                            $('#level3id').selectpicker('render');
+                            $('#level3id').selectpicker('refresh');
+                        }
+                    });
+                }
+                else {
+                            var $emplevel3 = $("#level3id")
+                            $emplevel3.empty();
+                            $emplevel3.append('<option value="-1" >全选第三级目录</option>');
+                            $('#level3id').selectpicker('render');
+                            $('#level3id').selectpicker('refresh');
+                }
+
+
+               });
+        });
+var level3_idlistss = []; //定义level3list 全局变量
+    function addapplyinfo() {
+               var level1 = $("#level1id option:selected").text();
+               var level1_id = $("#level1id option:selected").val();
+               var level2 = $("#level2id option:selected").text();
+               var level2_id = $("#level2id option:selected").val();
+               var level3 = $("#level3id option:selected").text();
+               var groupinfo = $("#groupid option:selected").text();
+               var group_id = $("#groupid option:selected").val();
+               if (level1_id == -1 || level2_id == -1 || level3 == "" || group_id == -1) {
+                   swal('请填写完整！');
+               }
+               else {
+                   var level3_id = ($("#level3id").val()).toString();
+                   $.ajax({
+                        url:{% url "showlevel2relation" %},
+                        type:'POST',
+                        dataType:'json',
+                        data:{'level2_id':level2_id},
+                        success:function(data) {
+                                var aa=data['dict_relation'];
+                                var mytable = document.getElementById("temptable");
+                                var rowsLength = mytable.rows.length;
+                                var groupmembers=document.getElementById("groupmembers").value;
+                                if (groupmembers==''){
+                                    document.getElementById('membersnull').style.display = 'block';
+                                    swal("成员不能为空");
+                                }else {
+                                    document.getElementById('membersnull').style.display = 'none';
+                                    $.ajax({
+                                        url: {% url "groupmembers" %},
+                                        type: 'POST',
+                                        dataType: 'json',
+                                        data: {'groupmembers':groupmembers},
+                                        async: false,
+                                        success: function (data) {
+                                            if (data['status']==1){
+                                                var adaccount_lists = data['adaccount_lists'];
+                                                $.ajax({
+                                                        url:{% url "showlevel1level2level3" %},
+                                                        type:'POST',
+                                                        async: false,
+                                                        dataType:'json',
+                                                        data:{'level1_id':level1_id,'level2_id':level2_id,'level3_id':level3_id},
+                                                        success:function(data) {
+                                                            var level3_idlist = data['level3_idlists']
+                                                            var level3_namelist = data['level3_namelist']
+                                                            for (var i = 0; i < adaccount_lists.length; i++) {
+                                                                var listad = adaccount_lists[i];
+                                                                for(var j=0;j<level3_idlist.length;j++ ){
+                                                                    var level3_ids = level3_idlist[j] + listad;
+                                                                    if (level3_idlistss.indexOf(level3_ids) == -1) {
+                                                                        document.getElementById("applyinfo").style.display = "inline";
+                                                                        var newRow = "<tr><td style='" + "display:none'" + ">" + level1_id + "-" + level2_id + "-" + level3_idlist[j] + "</td>" + "<td>" + level1 + "\\" + level2 + "\\" + level3_namelist[j] + "</td>" + "<td>" + groupinfo + "</td>" + "<td>" + listad + "</td>"
+                                                                                 +  "<td>" + fixXss(aa) + "</td>" + "<td>" + "<button type='" + "button'" + "class='" + "btn red btn-outline'" + "onclick='" + "deletapply(this)'" + ">" + "删除" + "</button></td></tr>"
+                                                                        $("#showtable").append(newRow);
+                                                                        level3_idlistss.push(level3_ids)
+                                                                    }
+                                                                    else {
+                                                                        //swal("请不要重复添加！");
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        });
+
+                                                }
+                                            else if(data['status']==2){
+                                                var errorinfo = data['error'];
+                                                var adaccount_lists = data['adaccount_lists'];
+                                                $.ajax({
+                                                        url:{% url "showlevel1level2level3" %},
+                                                        type:'POST',
+                                                        async: false,
+                                                        dataType:'json',
+                                                        data:{'level1_id':level1_id,'level2_id':level2_id,'level3_id':level3_id},
+                                                        success:function(data) {
+                                                            var level3_idlist = data['level3_idlists']
+                                                            var level3_namelist = data['level3_namelist']
+                                                            for (var i = 0; i < adaccount_lists.length; i++) {
+                                                                var listad = adaccount_lists[i];
+                                                                for(var j=0;j<level3_idlist.length;j++ ){
+                                                                    var level3_ids = level3_idlist[j] + listad;
+                                                                    if (level3_idlistss.indexOf(level3_ids) == -1) {
+                                                                        document.getElementById("applyinfo").style.display = "inline";
+                                                                        var newRow = "<tr><td style='" + "display:none'" + ">" + level1_id + "-" + level2_id + "-" + level3_idlist[j] + "</td>" + "<td>" + level1 + "\\" + level2 + "\\" + level3_namelist[j] + "</td>" + "<td>" + groupinfo + "</td>" + "<td>" + listad + "</td>"
+                                                                                 +  "<td>" + aa + "</td>" + "<td>" + "<button type='" + "button'" + "class='" + "btn red btn-outline'" + "onclick='" + "deletapply(this)'" + ">" + "删除" + "</button></td></tr>"
+                                                                        $("#showtable").append(newRow);
+                                                                        level3_idlistss.push(level3_ids)
+                                                                    }
+                                                                    else {
+                                                                        //swal("请不要重复添加！");
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        });
+                                                }
+                                            else {
+                                                swal({
+                                                    title:"全部错误",
+                                                    text:'',
+                                                    type:"error",
+                                                    showConfirmButton:"true",
+                                                    confirmButtonText:"好的",
+                                                    animation:"slide-from-top"
+                                                },function () {
+                                                    window.location.href = '/applys/';
+                                                })
+                                            }
+
+                                        }
+                                    });
+                                }
+
+                        }
+                    });
+               }
+
+       }
+       function deletapply(obj){
+{#            var message=confirm("你确定删除嘛？");#}
+{#                if(!message){#}
+{#                    return false;#}
+{#                }#}
+            var tr=obj.parentNode.parentNode;
+            var onetr = tr.cells[0].innerHTML;  //取当前tr第一个值
+            var onetrlist = onetr.split('-')
+            lenonetrlist = level3_idlistss.indexOf(onetrlist[2])
+            level3_idlistss.splice(lenonetrlist,1) //z在全局level3_idlistss里面删除
+            var tbody=tr.parentNode;
+            tbody.removeChild(tr);
+             if(tbody.rows.length==0) {
+                 document.getElementById("applyinfo").style.display = "none";
+            }
+       }
+       function saveapplyinfo(){
+           var savemytable=document.getElementById("temptable");
+           var rowsLength=savemytable.rows.length;
+           var level_id_lists='';
+           var read_m_lists='';
+           var account_lists='';
+           for (var i= 1; i< rowsLength; i++) {
+                level_id_lists+= savemytable.rows[i].cells[0].innerHTML+';'; {# 目录ID#}
+                read_m_lists+= savemytable.rows[i].cells[2].innerHTML+';'; {# 查看和修改#}
+                account_lists+= savemytable.rows[i].cells[3].innerHTML+';';  {# 申请人AD#}
+           }
+           if(level_id_lists!=';'){
+               $.ajax({
+                   url:{% url "addapplytoflow" %},
+                   type:'POST',
+                   dataType:'json',
+                   data:{'level_id_lists':level_id_lists,'read_m_lists':read_m_lists,'account_lists':account_lists,},
+                   success:function(data,status){
+                       if(status=='success'){
+                           if(data['status']==1){
+                                   swal({
+                                        title:"申请成功",
+                                        text:'',
+                                        type:"success",
+                                        showConfirmButton:"true",
+                                        confirmButtonText:"好的",
+                                        animation:"slide-from-top"
+                                    },function () {
+                                        window.location.href = '/refer/';
+                                    })
+                           }
+                           else {
+                               window.location.href = '/apply/';
+                           }
+                       }
+                   }
+               });
+            }
+        }
+
+    </script>
+
+{% endblock %}

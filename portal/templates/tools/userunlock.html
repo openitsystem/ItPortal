@@ -1,0 +1,75 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    <title>账号解锁</title>
+{% endblock %}
+
+{% block custom_css %}
+
+    <link href="/static/easyfrom/easyform.css" rel="stylesheet" type="text/css">
+    <link href="/static/sweetalert/sweetalert.css" rel="stylesheet">
+
+    <!--template css-->
+{% endblock %}
+
+{% block content %}
+
+    <h1 style='text-align: center;margin-top: 50px' class="text-success"> 账号解锁</h1>
+    <div class="row" style="margin-top: 50px;">
+        <div class="col-sm-offset-1 col-md-10">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <span aria-hidden="true" class="icon-settings"></span>
+                    账号解锁 :
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal" id="pwdform" method="post" style="margin-top: 15px">
+                        <div class="form-group">
+                            <label class="col-sm-2 col-sm-offset-1 control-label" style="margin-top: 20px">AD账号:</label>
+                            <div class="col-sm-7" style="margin-top: 20px"><input type="text" id="account" name="account" class="form-control" value="" autocomplete="off"></div>
+
+                        </div>
+                        <div class="form-group">
+                            <div class="col-lg-offset-5 col-lg-10">
+                                <label id ="message" style="display: none;color: red"></label>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="form-group">
+                            <div style="text-align: center">
+                                <button class="btn btn-teal dropdown-toggle" id="sub" value="确认解锁" type="button" onclick="unlockaccount()">确认解锁</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div><!--col-md-6-->
+    </div>
+
+
+{% endblock %}
+
+{% block custom_js %}
+    <script src="/static/easyfrom/easyform.js"></script>
+    <script src="/static/sweetalert/sweetalert.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script>
+        function unlockaccount() {
+            var account = $("#account").val();
+            if(account){
+                $.ajax({
+                    url:{% url "unlock" %},
+                    type:'POST',
+                    dataType:'json',
+                    data:{'account':account},
+                    async:false,
+                    success: function (data) {
+                        document.getElementById("message").innerHTML =  data['message']['message'];
+                        document.getElementById("message").style.display="block";
+                    }
+                });
+            }
+        }
+
+    </script>
+{% endblock %}

@@ -1,0 +1,377 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    <title>申请权限管理</title>
+{% endblock %}
+
+{% block custom_css %}
+    <link href="/static/css/bootstrap-select.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="/static/css/bootstrap-table.min.css">
+    <link href="/static/sweetalert/sweetalert.css" rel="stylesheet">
+    <link href="/static/css/blue.css" rel="stylesheet">
+    <link href="/static/easyfrom/easyform.css" rel="stylesheet" type="text/css">
+    <link href="/static/css/style.min862f.css?v=4.1.0" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+    <div class="modal inmodal" id="myModa56" tabindex="-1" role="dialog" aria-hidden="true" >
+        <div class="modal-dialog">
+            <div class="modal-content animated flipInY">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">删除列表</h4>
+                </div>
+                <div style=" height:340px;width: 90%;margin:0 auto; overflow-y:auto;overflow-x: auto">
+                    <table class="table table-striped table-bordered table-hover"  id="temptable22222222">
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="shuaxinyemian()">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <div class="modal inmodal" id="myModa58" tabindex="-1" role="dialog" aria-hidden="true" >
+        <div class="modal-dialog">
+            <div class="modal-content animated flipInY">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">添加列表</h4>
+                </div>
+                <div style=" height:340px;width: 90%;margin:0 auto; overflow-y:auto;overflow-x: auto">
+                    <table class="table table-striped table-bordered table-hover"  id="temptable352">
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="shuaxinyemian()">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal inmodal fade" id="myModa2" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <form class="modal-content animated bounceInRight form-horizontal" id="demo-form" method="post" action="/addjzmanger/">
+                <div class="modal-header">
+                    <h4 class="modal-title">添加申请权限</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">AD账号：</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="pbmanger" name="pbmanger" data-easyform="real-time;ajax:acount();" data-message="请输入账号" data-easytip="position:bottom;class:easy-red;" data-message-ajax="未查询到账号" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
+                    <input class="btn btn-primary" id="sub" value="保存" type="submit" >
+                </div>
+            </form>
+        </div>
+    </div>
+    <!--page header start-->
+    <div class="page-header">
+        <div class="row">
+            <div class="col-sm-6">
+                <h4>兼职账号申请权限管理</h4>
+            </div>
+        </div>
+    </div>
+    <!--page header end-->
+    <!--start page content-->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="row" id="table">
+                                <div class="col-md-12">
+                                    <div class="table-responsive">
+                                        <div class="portlet light bordered">
+                                            <div class="portlet-body">
+                                                <div id="toolbar" >
+                                                    <a  class="btn btn-danger" onclick="DelPermissions()">关闭权限</a>
+                                                    <a  class="btn btn-indigo" onclick="changejzmanger()">添加权限</a>
+                                                </div>
+                                                <table id="temptable">
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--end page content-->
+
+
+
+{% endblock %}
+
+{% block custom_js %}
+
+    <script src="/static/js/bootstrap-select.js"></script>
+    <script src="/static/js/bootstrap-table.min.js"></script>
+    <script src="/static/js/bootstrap-table-zh-CN.min.js"></script>
+    <script src="/static/sweetalert/sweetalert.min.js"></script>
+    <script src="/static/js/icheck.min.js"></script>
+    <script src="/static/easyfrom/easyform.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script>
+
+    function shuaxinyemian() {
+        window.location.reload();
+    }
+        $(document).ready(function ()
+        {
+            $('#demo-form').easyform();
+        });
+        $(document).ready(function () {
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue'
+            });
+        });
+    </script>
+    <script>
+
+        $(".click").click(function(){
+            $(this).attr("disabled","disabled");
+        });
+        $ (function () {
+            $.ajax({
+                url: {% url "getGetUserFromGroup" %},
+                type: 'POST',
+                dataType: 'json',
+                success: function (data) {
+                    $('#temptable').bootstrapTable('load',data['message']);
+                }
+            });
+        });
+        $(function () {
+
+            //1.初始化Table
+            var oTable = new TableInit();
+            oTable.Init();
+
+            //2.初始化Button的点击事件
+            var oButtonInit = new ButtonInit();
+            oButtonInit.Init();
+
+        });
+
+
+        var TableInit = function () {
+            var oTableInit = new Object();
+            //初始化Table
+            oTableInit.Init = function () {
+                $('#temptable').bootstrapTable({
+                    {#            url: '/Home/GetDepartment',         //请求后台的URL（*）#}
+                    {#            method: 'get',                      //请求方式（*）#}
+                    toolbar: '#toolbar',                //工具按钮用哪个容器
+                    striped: true,                      //是否显示行间隔色
+                    cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                    pagination: true,                   //是否显示分页（*）
+                    sortable: false,                     //是否启用排序
+                    sortOrder: "asc",                   //排序方式
+                    queryParams: oTableInit.queryParams,//传递参数（*）
+                    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber:1,                       //初始化加载第一页，默认第一页
+                    pageSize: 10,                       //每页的记录行数（*）
+                    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                    search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                    strictSearch: false,                //服务器搜索
+                    showColumns: false,                  //是否显示所有的列
+                    showRefresh: false,                  //是否显示刷新按钮
+                    minimumCountColumns: 2,             //最少允许的列数
+                    clickToSelect: true,                //是否启用点击选中行
+                    {#            height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度#}
+                    uniqueId: "sAMAccountName",                     //每一行的唯一标识，一般为主键列
+                    showToggle:false,                    //是否显示详细视图和列表视图的切换按钮
+                    cardView: false,                    //是否显示详细视图
+                    detailView: false,                   //是否显示父子表
+                    columns: [{
+                        checkbox: true
+                    }, {
+                        field: 'sAMAccountName',
+                        title: '账号'
+                    }, {
+                        field: 'displayName',
+                        title: '显示名称',
+                formatter : function(value,
+                                     row, index) {
+                    return fixXss(row["displayName"]);
+                }
+                    }
+
+                    ]
+                });
+            };
+
+            //得到查询的参数
+            oTableInit.queryParams = function (params) {
+                var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                    limit: params.limit,   //页面大小
+                    offset: params.offset,  //页码
+                    departmentname: $("#txt_search_departmentname").val(),
+                    statu: $("#txt_search_statu").val()
+                };
+                return temp;
+            };
+            return oTableInit;
+        };
+
+
+        var ButtonInit = function () {
+            var oInit = new Object();
+            var postdata = {};
+
+            oInit.Init = function () {
+                //初始化页面上面的按钮事件
+            };
+
+            return oInit;
+        };
+
+
+
+
+        function DelPermissions() {
+            var getSelections = $('#temptable').bootstrapTable('getSelections');
+            if(getSelections.length == 0) {
+                swal("请选择一行");
+            }
+            else if(getSelections!=0){
+                swal({
+                            title: "确定删除选中的账号么？",
+                            text: "",
+                            type: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#DD6B55",
+                            confirmButtonText: "确定",
+                            cancelButtonText: "取消",
+                            closeOnConfirm: true
+                        },
+                        function(){
+                            $.ajax({
+                                url:{% url "DeleteApplicationPermission" %},
+                                type:'POST',
+                                dataType:'json',
+                                data:{'getSelections':JSON.stringify(getSelections)},
+                                success:function(data){
+                                    $("#temptable22222222 tbody").html("");
+                                    if(data['message']){
+                                        var result=data['message'];
+                                        for(var i= 0;i<result.length;i++){
+{#                                            if(result[i]['isSuccess']){#}
+                                            if(result[i]){
+
+                                                $('#myModa56').modal({
+                                                    keyboard: true,
+                                                    backdrop:false
+                                                })
+
+                                                var newRow="<tr><td>" + result[i]['message'] + "</td></tr>"
+                                                $("#temptable22222222").append(newRow);
+{#                                                swal('成功')#}
+                                            }
+                                            else {
+                                                var newRow="<tr'><td style='color:red'>"+result[i]['message']+ "</td></tr>";
+                                                $("#newshowtable").append(newRow);
+                                            }
+                                        }
+
+                                    }
+                                    else {
+                                        swal("一键删除失败！");
+
+                                    }
+
+                                }
+                            });
+                        });
+
+            }
+        }
+        function acount() {
+            var user = $("#pbmanger").val();
+            if(user){
+                $.ajax({
+                    url:{% url "acountad" %},
+                    type:'POST',
+                    dataType:'json',
+                    data:{'user':user},
+                    async:false,
+                    success: function (data) {
+                        $("#pbmanger").trigger("easyform-ajax", data['status']);
+                    }
+                });
+            }
+        }
+
+
+        function changejzmanger() {
+                $('#myModa2').modal({
+                    keyboard: true,
+                    backdrop: false
+                });
+        }
+
+          $(function () {
+            var options = {
+                dataType:"json",
+                async:true,
+
+                success:function (data) {
+                       $('#myModa2').modal('hide');
+                    $("#temptable352 tbody").html("");
+                    if(data['message']){
+                        var result=data['message'];
+                        for(var i= 0;i<result.length;i++){
+                            if(result[i]){
+
+                                $('#myModa58').modal({
+                                    keyboard: true,
+                                    backdrop:false
+                                })
+
+                                var newRow="<tr><td>" + result[i]['message'] + "</td></tr>"
+                                $("#temptable352").append(newRow);
+                                {#                                                swal('成功')#}
+                            }
+                            else {
+                                var newRow="<tr'><td style='color:red'>"+result[i]['message']+ "</td></tr>";
+                                $("#newshowtable").append(newRow);
+                            }
+                        }
+
+                    }
+                    else {
+                        swal("更改失败");
+
+                    }
+
+                },
+                error:function (e) {
+                    swal("出错了，请联系 IT 处理");
+                }
+            };
+            $("#demo-form").ajaxForm(options);
+        })
+
+    </script>
+
+{% endblock %}

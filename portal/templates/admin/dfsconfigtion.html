@@ -1,0 +1,640 @@
+{% extends 'admin/adminindex.html' %}
+
+{% block title %}
+    文件夹信息配置
+{% endblock %}
+
+{% block custom_css %}
+
+    <link href="/static/easyfrom/easyform.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/static/css/bootstrap-table.min.css">
+    <link href="/static/css/bootstrap-select.css" rel="stylesheet" type="text/css" />
+    <!--template css-->
+{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <div class="row">
+            <div class="col-sm-6">
+                <h4>文件夹基本信息配置</h4>
+            </div>
+            <div class="col-sm-6 text-right">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">是否开启文件夹权限的功能</div>
+                <div class="panel-body">
+
+                        {% ifequal management_configuration.dfs_switch '1' %}
+
+                            <button onclick="DfsConfig('0')" class="btn btn-primary">开启</button>
+                        {% else %}
+
+                            <button onclick="DfsConfig('1')" class="btn btn-primary">关闭</button>
+
+                        {% endifequal %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">文件夹服务器接口地址</div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-lg-1 control-label">dfs_api</label>
+                        <div class="col-lg-4">
+                            <input id="inputdfs_api"  placeholder="文件夹服务器接口地址,例 http://0.0.0.0:8081/" class="form-control" {%if management_configuration.dfs_api %} value="{{ management_configuration.dfs_api }}" {% endif %}>
+                        </div>
+                     <input style="text-align: center" class="btn btn-primary" value="提交" type="button" onclick="dfs_api_configtion()">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">文件夹基础配置</div>
+                <div class="panel-body">
+                    <form class="form-horizontal" id="baseform"  method="post" onsubmit="return getDfsVal();">
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">DFS-OU </label>
+                            <div class="col-lg-3">
+                                <input id="inputdfsou"  placeholder="请输入OU的distinguishedName属性" class="form-control" {% if management_configuration.dfs_group %} value="{{ management_configuration.dfs_group }}" {% endif %}>
+                            </div>
+                            <label class="col-lg-2 control-label">Basic_authority</label>
+                            <div class="col-lg-3">
+                                <input id="inputBasic_authority"  placeholder="默认权限初始权限（建议 Authenticated Users）" class="form-control" {%if management_configuration.Basic_authority %} value="{{ management_configuration.Basic_authority }}" {% endif %}>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">dfs_manager</label>
+                            <div class="col-lg-3">
+                                <input id="inputdfs_manager" data-easyform="real-time;ajax:acount('dfs_manager');" data-message="请输入账号" placeholder="具有所有文件夹写权限账户" class="form-control" {%if management_configuration.dfs_manager %} value="{{ management_configuration.dfs_manager }}" {% endif %}>
+                            </div>
+                            <label class="col-lg-2 control-label">dfs_relation_name</label>
+                            <div class="col-lg-3">
+                                <input id="inputdfs_relation_name"  placeholder="文件夹管理员姓名" class="form-control" {%if  management_configuration.dfs_relation_name %} value="{{ management_configuration.dfs_relation_name}}" {% endif %}>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">dfs_relation</label>
+                            <div class="col-lg-3">
+                                <input id="inputdfs_relation" data-easyform="real-time;ajax:acount('dfs_relation');" data-message="请输入账号" placeholder="文件夹管理员AD" class="form-control" {%if management_configuration.dfs_relation %} value="{{ management_configuration.dfs_relation }}" {% endif %}>
+                            </div>
+                            <label class="col-lg-2 control-label">dfs_relation_mail</label>
+                            <div class="col-lg-3">
+                                <input id="inputdfs_relation_mail"  placeholder="文件夹管理员邮箱" class="form-control" {%if management_configuration.dfs_relation_mail %} value="{{ management_configuration.dfs_relation_mail }}" {% endif %}>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">AD_time</label>
+                            <div class="col-lg-3">
+                                <input id="inputAD_time"  placeholder="AD组新建完成后的缓冲时间" data-easyform="real-time;number;" data-message="请输入数字" class="form-control" {%if management_configuration.AD_time %} value="{{ management_configuration.AD_time }}" {% endif %}>
+                            </div>
+                        </div>
+                        {% if management_configuration.dfs_api %}
+                            <input style="text-align: center" class="btn btn-primary" id="sub" value="更改配置提交" type="submit">
+                            </form>
+                            <button onclick="delDfsConfig()" class="btn btn-primary" style="position: absolute;bottom: 15px;left: 130px">清除配置</button>
+                        {% else %}
+                            <input style="text-align: center" class="btn btn-primary" id="sub" value="提交" type="submit">
+                            </form>
+                        {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="table-responsive">
+                    <div class="panel-heading">文件夹权限初始化设置</div>
+                    <div class="portlet-body">
+                        <div  class="col-md-11 center-block">
+                            <div id="toolbar">
+                                <button id="btn_add" type="button" class="btn btn-primary btn-rounded btn-border btn-sm" data-toggle="modal" data-target="#AddFileConfigToMod">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;新增
+                                </button>
+                                <button id="btn_delete" type="button" class="btn btn-warning btn-border btn-rounded btn-sm" onclick="DelFileConfig()">
+                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>&nbsp;删除
+                                </button>
+                                <button class="btn btn-primary btn-rounded btn-border btn-sm"  onclick="dfs_api_test()">&nbsp;测试文件夹权限接口</button>
+                                <button class="btn btn-primary btn-rounded btn-border btn-sm" onclick="FirstFolderAuthority()">&nbsp;初始化文件夹权限</button>
+                            </div>
+                            <!--end page content-->
+                            <!--Start footer-->
+                            <!--end footer-->
+                            <table id="temptable">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--end page content-->
+    <!--Start footer-->
+    <footer class="footer">
+        <span>Copyright © 2018. Float</span>
+    </footer>
+    <!--end footer-->
+    <div class="modal fade" id="AddFileConfigToMod" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        添加需要初始化权限的文件夹
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="col-md-3 control-label" for="level2">文件夹层级</label>
+                            <div class="col-md-6">
+                                <select id="folder_level" class="selectpicker" data-hide-disabled="true" data-live-search="true">
+                                    <option value=1>第一层目录</option>
+                                    <option value=0>第零层目录</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group ">
+                            <label class="col-md-3 control-label" for="UserName">文件夹路径</label>
+                            <div class="col-sm-6">
+                                <input class="form-control"  id="folder_path" type="text" placeholder="例(E:\财务中心)" class="form-control" style="width: 350px;height: 33px;border: 1px solid #c2cad8;padding:0px" onkeyup="value=value.replace(/[^\r\n\a-\z\A-\Z\.\:\\\-\_0-9\u4e00-\u9fa5]/g,'')">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group ">
+                            <label class="col-md-3 control-label" for="UserName">系统管理员账户</label>
+                            <div class="col-sm-6">
+                                <input class="form-control"  id="server_manager" placeholder="系统管理员账户"  type="text" value="" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button  type="button" class="btn btn-warning btn-border btn-rounded" data-dismiss="modal">&nbsp;关闭</button>
+                    <button  type="submit" class="btn btn-primary btn-rounded btn-border" onclick="AddFileConfig()">&nbsp;确定</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+    <!--main content start-->
+{% endblock %}
+
+{% block custom_js %}
+    <script src="/static/easyfrom/easyform.js"></script>
+    <script src="/static/js/bootstrap-table.min.js"></script>
+    <script src="/static/js/bootstrap-table-zh-CN.min.js"></script>
+    <script src="/static/js/bootstrap-select.js"></script>
+<script src="/static/js/fixXss.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function ()
+        {
+            $('#baseform').easyform();
+        });
+        function removeXss(str){
+    return str.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+        function acount(now) {
+            if (now=="dfs_relation"){
+                var user = removeXss($("#inputdfs_relation").val());
+                if(user){
+                $.ajax({
+                    url:{% url "acountad" %},
+                    type:'POST',
+                    dataType:'json',
+                    data:{'user':user},
+                    async:false,
+                    success: function (data) {
+                        $("#inputdfs_relation").trigger("easyform-ajax", data['status']);
+                    }
+                });
+            }
+            }else if (now=="dfs_manager") {
+                var user = removeXss($("#inputdfs_manager").val());
+                if(user){
+                $.ajax({
+                    url:{% url "acountad" %},
+                    type:'POST',
+                    dataType:'json',
+                    data:{'user':user},
+                    async:false,
+                    success: function (data) {
+                        $("#inputdfs_manager").trigger("easyform-ajax", data['status']);
+                    }
+                });
+            }
+            }else {
+                var user =false
+            }
+        }
+        function getDfsVal()
+        {
+            var inputdfsou = removeXss(document.getElementById("inputdfsou").value);
+            var inputBasic_authority = removeXss(document.getElementById("inputBasic_authority").value);
+            var inputdfs_manager = removeXss(document.getElementById("inputdfs_manager").value);
+            var inputdfs_relation_name = removeXss(document.getElementById("inputdfs_relation_name").value);
+            var inputdfs_relation = removeXss(document.getElementById("inputdfs_relation").value);
+            var inputdfs_relation_mail = removeXss(document.getElementById("inputdfs_relation_mail").value);
+            var inputAD_time = removeXss(document.getElementById("inputAD_time").value);
+            $.ajax({
+                url:{% url "saveAllDfsConfig" %},
+                type:'POST',
+                dataType:'json',
+                async: false,
+                traditional:true,
+                data:{"dfs_group":inputdfsou,"Basic_authority":inputBasic_authority,"dfs_manager":inputdfs_manager,"dfs_relation_name":inputdfs_relation_name,"dfs_relation":inputdfs_relation,"dfs_relation_mail":inputdfs_relation_mail,"AD_time":inputAD_time,},
+                success:function (data) {
+                    if (data['isSuccess']){
+                        swal({
+                                title: "恭喜！",
+                                text: "信息保存成功",
+                                type: "success",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            },
+                            function () {
+                                location.reload()
+                            });
+                        return false;
+                    }
+                    else {
+                        swal({
+                            title: "错误！",
+                            text: "请检查信息是否正确",
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                        return false;
+                    }
+                }
+            })
+            return false;
+        }
+
+        function dfs_api_configtion()
+        {
+            var inputdfs_api = removeXss(document.getElementById("inputdfs_api").value);
+            if(inputdfs_api){
+                swal({
+                title: "确定更改文件夹服务器接口地址?",
+                text: "",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定'
+            }, function () {
+                $.ajax({
+                    url:{% url "DfsApiConfigtion" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    data:{'inputdfs_api':inputdfs_api},
+                    success:function (data) {
+                        if (data['isSuccess']){
+                            swal({
+                                title:"成功",
+                                text:'',
+                                type:"success",
+                                showConfirmButton:"true",
+                                confirmButtonText:"好的",
+                                animation:"slide-from-top"
+                            },function () {
+                                window.location.reload();
+                            })
+                        }
+                        else {
+                            swal("更改失败！");
+                        }
+                    }
+                });
+            })
+            }
+        }
+        function delDfsConfig() {
+            swal({
+                title: "确定删除吗？",
+                text: "删除后需要重置配置",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定删除'
+            }, function () {
+                $.ajax({
+                    url:{% url "delDfsConfig" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    success:function (data) {
+                        if (data['isSuccess']){
+                            swal({
+                                title:"删除成功",
+                                text:'',
+                                type:"success",
+                                showConfirmButton:"true",
+                                confirmButtonText:"好的",
+                                animation:"slide-from-top"
+                            },function () {
+                                window.location.reload();
+                            })
+                        }
+                        else {
+                            swal({
+                                title:"删除失败",
+                                text:'',
+                                type:"success",
+                                showConfirmButton:"true",
+                                confirmButtonText:"好的",
+                                animation:"slide-from-top"
+                            },function () {
+                                window.location.reload();
+                            })
+                        }
+                    }
+                });
+            })
+        }
+
+        function DfsConfig(now) {
+            if(now=="0" || now=="1"){
+                swal({
+                title: "确定更改文件夹权限的功能?",
+                text: "关闭后,前台将不会显示文件夹权限相关功能",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定'
+            }, function () {
+                $.ajax({
+                    url:{% url "DfsConfig" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    data:{'dfs_switch':now},
+                    success:function (data) {
+                        if (data['isSuccess']){
+                            swal({
+                                title:"成功",
+                                text:'',
+                                type:"success",
+                                showConfirmButton:"true",
+                                confirmButtonText:"好的",
+                                animation:"slide-from-top"
+                            },function () {
+                                window.location.reload();
+                            })
+                        }
+                        else {
+                            swal("更改失败！");
+                        }
+                    }
+                });
+            })
+            }
+        }
+    </script>
+
+    <script>
+
+        $(function () {
+            //1.初始化Table
+            var oTable = new TableInit();
+            oTable.Init();
+
+            //2.初始化Button的点击事件
+            var oButtonInit = new ButtonInit();
+            oButtonInit.Init();
+            $.ajax({
+                url: {% url "show_folder_first_choice" %},
+                type: 'POST',
+                dataType: 'json',
+                success: function (data) {
+                    $('#temptable').bootstrapTable('load',data['row']);
+                }
+            });
+        });
+
+        var TableInit = function () {
+            var oTableInit = new Object();
+            //初始化Table
+            oTableInit.Init = function () {
+                $('#temptable').bootstrapTable({
+                    {#            url: '/Home/GetDepartment',         //请求后台的URL（*）#}
+                    {#            method: 'get',                      //请求方式（*）#}
+                    toolbar: '#toolbar',                //工具按钮用哪个容器
+                    striped: true,                      //是否显示行间隔色
+                    cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                    pagination: true,                   //是否显示分页（*）
+                    sortable: false,                     //是否启用排序
+                    sortOrder: "asc",                   //排序方式
+                    queryParams: oTableInit.queryParams,//传递参数（*）
+                    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber:1,                       //初始化加载第一页，默认第一页
+                    pageSize: 10,                       //每页的记录行数（*）
+                    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                    search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                    strictSearch: false,                //服务器搜索
+                    showColumns: false,                  //是否显示所有的列
+                    showRefresh: false,                  //是否显示刷新按钮
+                    minimumCountColumns: 2,             //最少允许的列数
+                    clickToSelect: true,                //是否启用点击选中行
+                    {#            height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度#}
+                    uniqueId: "id",                     //每一行的唯一标识，一般为主键列
+                    showToggle:false,                    //是否显示详细视图和列表视图的切换按钮
+                    cardView: false,                    //是否显示详细视图
+                    detailView: false,                   //是否显示父子表
+                    columns: [{
+                        checkbox: true
+                    }, {
+                        field: 'id',
+                        title: 'id'
+                    }, {
+                        field: 'folder_path',
+                        title: '文件路径'
+                    }, {
+                        field: 'folder_level',
+                        title: '文件层级'
+                    },{
+                        field: 'server_manager',
+                        title: '系统管理员账户'
+                    },
+                    ]
+                });
+            };
+
+            //得到查询的参数
+            oTableInit.queryParams = function (params) {
+                var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                    limit: params.limit,   //页面大小
+                    offset: params.offset,  //页码
+                    departmentname: $("#txt_search_departmentname").val(),
+                    statu: $("#txt_search_statu").val()
+                };
+                return temp;
+            };
+            return oTableInit;
+        };
+
+        var ButtonInit = function () {
+            var oInit = new Object();
+            var postdata = {};
+
+            oInit.Init = function () {
+                //初始化页面上面的按钮事件
+            };
+
+            return oInit;
+        };
+
+        function DelFileConfig() {
+            var getSelections = $('#temptable').bootstrapTable('getSelections');
+            if(getSelections.length == 0) {
+                swal("请选择一行权限，进行删除！");
+            }
+            else if(getSelections!=0){
+                swal({
+                        title: "你确定一键删除吗？",
+                        {#                    text: "关闭后兼职人员将无法使用",#}
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "确定",
+                        cancelButtonText: "取消",
+                        closeOnConfirm: false
+                    },
+                    function(){
+                        $.ajax({
+                            url:{% url "DelFileConfig" %},
+                            type:'POST',
+                            dataType:'json',
+                            data:{'getSelections':JSON.stringify(getSelections)},
+                            success:function(data) {
+                                if (data['status']==1) {
+                                    swal({
+                                            title: "一键删除成功！",
+                                            //text:"账号已经成功关闭！",
+                                            type: "success",
+                                            showConfirmButton: "true",
+                                            confirmButtonText: "好的",
+                                            animation: "slide-from-top"
+                                        },
+                                        function () {
+                                            $('#temptable').bootstrapTable('remove',{field: 'id',"values":data['SuccessList']});
+                                        })
+                                }
+                                else {
+                                    swal("一键删除失败！");
+                                }
+
+                            }
+                        });
+                    });
+            }
+        };
+
+        function AddFileConfig() {
+            var folder_level = $("#folder_level option:selected").val();
+            var folder_path=document.getElementById("folder_path").value;
+            var server_manager=document.getElementById("server_manager").value;
+            if(folder_level =="" || folder_path =="" || server_manager ==""){
+                swal("请填写完整");}
+            else{
+                $.ajax({
+                    url: {% url "AddFileConfig" %},
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {'folder_level': folder_level, 'folder_path': folder_path,'server_manager':server_manager},
+                    success: function (data) {
+                        if(data['status']==1){
+                            $('#temptable').bootstrapTable('prepend',data['SuccessList'][0]);
+                            $(".modal").modal("hide");
+                            document.getElementById("folder_path").value='';
+                            document.getElementById("server_manager").value='';
+                            swal("一键添加成功！");
+                        }
+                        else {
+                            $(".modal").modal("hide");
+                            document.getElementById("folder_path").value='';
+                            document.getElementById("server_manager").value='';
+                            swal("一键添加失败！");
+                        }
+                    }
+                });
+            }
+
+
+        };
+
+        function dfs_api_test() {
+            $.ajax({
+                url: {% url "dfs_api_test" %},
+                type: 'POST',
+                dataType: 'json',
+                success: function (data) {
+                    if(data['isSuccess']){
+                        swal("测试连接成功！");
+                    }
+                    else {
+                        swal("测试连接失败！");
+                    }
+                }
+            });
+        };
+        function FirstFolderAuthority() {
+            swal({
+                    title: "你确定文件夹权限权限初始化？",
+                    text: "文件夹会按照三层目录进行权限设置,请关闭已经打开的文件,文件夹",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    closeOnConfirm: false
+                },
+                function(){
+                    $.ajax({
+                        url:{% url "dfs_api_test" %},
+                        type:'POST',
+                        dataType:'json',
+                        async:false,
+                        {#                data:{'getSelections':JSON.stringify(getSelections)},#}
+                        success:function(data) {
+                            if(data['isSuccess']) {
+                                $.ajax({
+                                    url: {% url "FirstFolderAuthority" %},
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    async:false,
+                                    success: function (data) {
+                                        swal("正在后台执行！");
+                                    }
+                                });
+                            }
+                            else {
+                                swal("文件夹权限权限初始化失败,接口不通！");
+                            }
+
+                        }
+                    });
+                });
+        };
+
+    </script>
+
+{% endblock %}

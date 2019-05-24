@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>邮件通知</title>
+
+    <style type="text/css">
+        .ListTable {  border :1px solid #BDBCBC;border-collapse: collapse; width:100%;}
+        .ListTable td{ height:50px;font-size:12px;width:16.6%;border:1px  #BDBCBC ;  border-bottom-style:dashed; letter-spacing:1px; line-height:20px;}
+        .recordTable {  border :1px solid #BDBCBC;border-collapse: collapse; width:100%;  table-layout:fixed}
+        .recordTable td{ height:30px;  font-size:12px;border:1px solid #BDBCBC ;  letter-spacing:1px; text-align:center; }
+        .wordbreak{WORD-BREAK: break-all;word-wrap: break-word;}
+    </style>
+</head>
+
+<body>
+<div>
+
+
+ <div style=" margin-top:20px;">
+    <table class="recordTable">
+       <tr>
+{#           <td style="width:80px;background:#EFEFEF;" align="center" valign="middle">申请人账号</td>#}
+           <td style="width:80px;background:#EFEFEF;" align="center" valign="middle">权限使用人账号</td>
+           <td style="width:80px;background:#EFEFEF;" align="center" valign="middle">权限使用人</td>
+           <td style="width:100px;background:#EFEFEF;" align="center" valign="middle">申请权限</td>
+           <td style="width:150px;background:#EFEFEF;" align="center" valign="middle">申请时间</td>
+           <td style="width:150px;background:#EFEFEF;" align="center" valign="middle">主管审批状态</td>
+           <td style="width:150px;background:#EFEFEF;" align="center" valign="middle">主管审批时间</td>
+       </tr>
+       <div style=" margin-top:20px;font-size:12px;">
+             {% if emaillists != '' %}
+             {% for emaillist in emaillists %}
+            <tr>
+{#                <td> {{ emaillist.authority_applicant }} </td>#}
+                <td>{{  emaillist.username }}</td>
+                <td>{{  emaillist.displayName }}</td>
+                <td>{{  emaillist.group_name }}</td>
+                <td>{{  emaillist.submit_time|date:"Y-m-d H:i:s"}}</td>
+                {% if emaillist.director_status == '1' %}
+                    <td>主管已审批</td>
+                {% endif %}
+                <td>{{  emaillist.director_time|date:"Y-m-d H:i:s"}}</td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+       </div>
+    </table>
+ </div>
+{#<a href="">请登录IT系统审批</a>#}
+</div>
+</body>
+</html>
+
+
+ <table>
+    <tr>
+        <td background="http://manage.17usoft.com/basemanage/CEReceiveCount/Index?taskid=16090511051048687730&amp;account=B1C8FB16-E824-4735-9666-A1CC00955BC9" bgcolor="#ffffff" width="1" height="1" valign="top">
+        </td>
+    <tr>
+ </table>

@@ -1,0 +1,97 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    <title>手机邮箱解除隔离</title>
+{% endblock %}
+
+{% block custom_css %}
+    <link href="/static/sweetalert/sweetalert.css" rel="stylesheet">
+    <!--template css-->
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="accordion1" class="panel-group accordion">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span aria-hidden="true" class="icon-screen-smartphone"></span>
+                        手机邮箱自助解锁
+                    </div>
+                    {% if statu %}
+                        <div id="collapseOne" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                {% for i in messageshow %}
+                                    <div class="col-md-3 col-sm-6" style="margin-top: 15px">
+                                        <div class="panel panel-default">
+                                            <span>设备信息</span>
+                                            <div class="panel-body text-center">
+                                                <p>设备：{{ i.DeviceModel }}</p>
+                                                <p>配置时间：{{ i.Creatime }}</p>
+                                                <p style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">设备ID：<span >{{ i.DeviceId }}</span></p>
+                                                <p>{{ i.state }}</p>
+                                                <hr>
+                                                {%if i.state == 'Allowed'%}
+                                                    <button class="btn btn-primary">已允许</button>
+                                                {% else %}
+                                                    <button class="btn btn-warning" onclick="maillock('{{ i.DeviceId }}')"></i>自助解锁</button>
+                                                {% endif%}
+
+                                            </div>
+                                        </div><!--end panel-->
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <hr>
+                        <div class="bg-indigo widget text-center" style="margin-top: 30px">
+                            <p>
+                                <img src="" alt="" class="img-circle" width="80">
+                            </p>
+                            <p>
+                            <h2>抱歉，暂未查询到您的移动设备信息。</h2>
+                            <h3 style="margin-top: 20px">请确认是否有配置的手机邮箱</h3>
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block custom_js %}
+    <script src="/static/sweetalert/sweetalert.min.js"></script>
+    <script>
+        function maillock(mailid) {
+            $.ajax({
+                url:{% url "lockactive" %},
+                type:'POST',
+                dataType:'json',
+                data:{'mailid':mailid},
+                async:false,
+                success: function (data) {
+                    if(data['isSuccess']){
+                        swal({
+                                title:"",
+                                text:data['message'],
+                                type:"success",
+                                showConfirmButton:"true",
+                                confirmButtonText:"好的",
+                                animation:"slide-from-top"
+                            },
+                            function () {
+                                window.location.reload();
+                            })
+                    }
+                    else {
+                        swal(data['message']);
+                    }
+                }
+            });
+        }
+    </script>
+{% endblock %}
+
+

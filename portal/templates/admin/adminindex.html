@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}IT开放平台{% endblock %}</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/simple-line-icons.css" rel="stylesheet">
+    <link href="/static/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/nanoscroller.css">
+    <link href="/static/css/style.css" rel="stylesheet">A
+    <link rel="stylesheet" href="/static/css/bootstrap-table.min.css">
+    <link href="/static/sweetalert/sweetalert.css" rel="stylesheet">
+
+
+    {% block custom_css %}
+        {#        <link href="/static/css/style.min862f.css?v=4.1.0" rel="stylesheet">#}
+    {% endblock %}
+</head>
+<body>
+
+<!--top bar start-->
+<div class="top-bar light-top-bar"><!--by default top bar is dark, add .light-top-bar class to make it light-->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-6">
+                <a href="/portal/" class="admin-logo">
+                    <span style="font-size: 25px;">IT开放平台</span>
+                </a>
+                <div class="left-nav-toggle visible-xs visible-sm">
+                    <a href="">
+                        <i class="glyphicon glyphicon-menu-hamburger"></i>
+                    </a>
+                </div><!--end nav toggle icon-->
+            </div>
+            <div class="col-xs-6">
+                <ul class="list-inline top-right-nav">
+                    <li class="dropdown avtar-dropdown">
+                        <a class="btn" target="_blank">{{ displayname }}</a>
+                    </li>
+                    <li>
+                        <a href="/logout/">
+                            注销
+                            <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- top bar end-->
+
+
+<!--left navigation start-->
+<aside class="float-navigation light-navigation">
+
+    <div class="nano">
+        <div class="nano-content">
+            <ul class="metisMenu nav" id="menu">
+                <li class="active">
+                    <a href="javascript: void(0);" aria-expanded="true"><i class="icon-users"></i>配置中心<span class="fa arrow"></span></a>
+                    <ul class="nav-second-level nav" aria-expanded="true">
+                        <li><a href="/adminconfig/">配置</a></li>
+                        {% ifequal mysqlipvalue 'None' %}  {% else %}<li><a href="/dfsconfigtion/">文件夹权限配置</a></li>
+                        <li><a href="/basisite/">基础配置</a></li> {% endifequal %}
+                    </ul>
+                </li>
+                <!--<li><a href="landing/index.html" target="_blank" class="bg-primary"><i class="icon-star"></i>Landing page</a></li>-->
+            </ul>
+        </div><!--nano content-->
+    </div>
+
+    <!--nano scroll end-->
+</aside>
+<!--left navigation end-->
+<section class="main-content">
+    {% block content %}
+        <!--page header start-->
+        <div class="page-header">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h4>基本信息配置</h4>
+                </div>
+                <div class="col-sm-6 text-right">
+                </div>
+            </div>
+        </div>
+        <!--page header end-->
+        <!--start page content-->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">mysql配置信息</div>
+                    <div class="panel-body">
+                        <div  class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">IP地址</label>
+                                <div class="col-lg-3">
+                                    <input id="input-ip"  placeholder="IP地址" class="form-control"  {% ifequal mysqlipvalue 'None' %}  {% else %}  value="{{ mysqlipvalue }}" {% endifequal %}>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">账号</label>
+                                <div class="col-lg-3">
+                                    <input id="input-username"  placeholder="账号" class="form-control" {% ifequal mysqlipvalue 'None' %} {% else %} value="{{ mysqlusernamevalue }}" {% endifequal %}>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">密码</label>
+                                <div class="col-lg-3">
+                                    <input id="input-password"  type="password" placeholder="密码" class="form-control"  {% ifequal mysqlipvalue 'None' %} {% else %} value="{{ mysqlPasswordvalue }}" {% endifequal %}>
+                                    {% ifequal mysqlipvalue 'None' %} {% else %}
+                                        <span class="help-block m-b-none" style="color:#ac2925;"><i class="fa fa-info-circle"></i> 因密码已做加密处理，更新配置时，需重新填写密码</span> {% endifequal %}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">端口</label>
+                                <div class="col-lg-3">
+                                    <input id="input-port"  placeholder="端口" class="form-control"  {% ifequal mysqlipvalue 'None' %} {% else %} value="{{ mysqlPortevalue }}" {% endifequal %}>
+                                </div>
+                            </div>
+                            {% ifequal mysqlipvalue 'None' %}
+                                <button onclick="testmysql()" class="btn btn-primary">测试连接</button>
+                            {% else %}
+                                <button onclick="delmysql()" class="btn btn-primary">清除配置</button>
+                                <button onclick="testmysql()" class="btn btn-primary">更新配置</button>
+                            {% endifequal %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        {% ifequal mysqlipvalue 'None' %}
+        {% else %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">IIS配置信息</div>
+                        <div class="panel-body">
+                            <div  class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-lg-2 control-label">IP地址</label>
+                                    <div class="col-lg-3">
+                                        <input id="iisinput-ip"  placeholder="IP地址" class="form-control" {% ifequal iis_ip 'None' %}{% else %} value="{{ iis_ip }}" {% endifequal %}>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-lg-2 control-label">端口</label>
+                                    <div class="col-lg-3">
+                                        <input id="iisinput-port"  placeholder="端口" class="form-control" {% ifequal iis_ip 'None' %}{% else %} value="{{ iis_port }}"{% endifequal %}>
+                                    </div>
+                                </div>
+                                {% ifequal iis_ip 'None' %}
+                                    <button  onclick="iislinktest()" class="btn btn-primary">测试连接</button>
+                                {% else %}
+                                    <button  onclick="deliislink()" class="btn btn-primary">清除配置</button>
+                                    <button  onclick="iislinktest()" class="btn btn-primary">更新配置</button>
+                                {% endifequal %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% ifequal iis_ip 'None' %}
+            {% else %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">ad配置信息</div>
+                            <div class="panel-body">
+                                <div  class="form-horizontal">
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">IP地址</label>
+                                        <div class="col-lg-3">
+                                            <input id="adinput-ip"  placeholder="IP地址" class="form-control" {% ifequal ad_ip 'None' %} {% else %} value="{{ ad_ip }}" {% endifequal %}>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">管理员账号</label>
+                                        <div class="col-lg-3">
+                                            <input id="adinput-account"  placeholder="输入sAMAccountName值" class="form-control" {% ifequal ad_ip 'None' %} {% else %} value="{{ ad_account }}" {% endifequal %}>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">密码</label>
+                                        <div class="col-lg-3">
+                                            <input id="adinput-password" type="password" placeholder="密码" class="form-control" {% ifequal ad_ip 'None' %} {% else %} value="{{ ad_password }}" {% endifequal %}>
+                                            {% ifequal ad_ip 'None' %} {% else %}
+                                                <span class="help-block m-b-none" style="color:#ac2925;"><i class="fa fa-info-circle"></i> 因密码已做加密处理，更新配置时，需重新填写密码</span> {% endifequal %}
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">域名</label>
+                                        <div class="col-lg-3">
+                                            <input id="adinput-domain"  placeholder="域名,例如：contoso.com" class="form-control" {% ifequal ad_ip 'None' %} {% else %} value="{{ ad_domain }}"{% endifequal %}>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">原始路径</label>
+                                        <div class="col-lg-3">
+                                            <input id="adinput-path"  placeholder="原始路径,例如：dc=contoso,dc=com" class="form-control" {% ifequal ad_ip 'None' %} {% else %} value="{{ ad_path }}" {% endifequal %}>
+                                        </div>
+                                    </div>
+                                    {% ifequal ad_ip 'None' %}
+                                        <button  onclick="adlinktest()" class="btn btn-primary">测试连接</button>
+                                    {% else %}
+                                        <button  onclick="deladlink()" class="btn btn-primary">清除配置</button>
+                                        <button  onclick="adlinktest()" class="btn btn-primary">更新配置</button>
+                                    {% endifequal %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">exchange配置信息</div>
+                            <div class="panel-body">
+                                <div  class="form-horizontal">
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">IP地址</label>
+                                        <div class="col-lg-3">
+                                            <input id="exinput-ip"  placeholder="IP地址" class="form-control" {% ifequal ex_ip 'None' %} {% else %} value="{{ ex_ip }}" {% endifequal %}>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">管理员账号</label>
+                                        <div class="col-lg-3">
+                                            <input id="exinput-account"  placeholder="输入sAMAccountName值" class="form-control" {% ifequal ex_ip 'None' %} {% else %} value="{{ ex_account }}" {% endifequal %}>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">密码</label>
+                                        <div class="col-lg-3">
+                                            <input id="exinput-password" type="password" placeholder="密码" class="form-control" {% ifequal ex_ip 'None' %} {% else %} value="{{ ex_password }}" {% endifequal %}>
+                                            {% ifequal ex_ip 'None' %} {% else %}
+                                                <span class="help-block m-b-none" style="color:#ac2925;"><i class="fa fa-info-circle"></i> 因密码已做加密处理，更新配置时，需重新填写密码</span> {% endifequal %}
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">域名</label>
+                                        <div class="col-lg-3">
+                                            <input id="exinput-domain"  placeholder="域名,例如：contoso.com" class="form-control" {% ifequal ex_ip 'None' %} {% else %} value="{{ ex_domain }}" {% endifequal %}>
+                                        </div>
+                                    </div>
+                                    {% ifequal ex_ip 'None' %}
+                                        <button  onclick="exlinktest()" class="btn btn-primary">测试连接</button>
+                                    {% else %}
+                                        <button  onclick="delexlink()" class="btn btn-primary">清除配置</button>
+                                        <button  onclick="exlinktest()" class="btn btn-primary">更新配置</button>
+                                    {% endifequal %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% ifequal ad_ip 'None' %}
+                {% else %}
+{#                    <div class="row">#}
+{#                        <div class="col-md-12">#}
+{#                            <div class="panel panel-default">#}
+{#                                <div class="panel-heading">ad服务器ip列表</div>#}
+{#                                <div class="panel-body">#}
+{#                                    <div  class="form-horizontal">#}
+{##}
+{#                                        <div class="form-group">#}
+{#                                            <label class="col-lg-2 control-label">ad服务器IP <input type="button" id="btn_addtrthree" value="增加"></label>#}
+{#                                            <div class="col-lg-4">#}
+{#                                                <table id="tabthree" style="display: none">#}
+{#                                                    <tbody>#}
+{#                                                    <tr>#}
+{#                                                        <td align="center">#}
+{#                                                            <input type="text" placeholder="ad服务器ip" name="name" /></td>#}
+{#                                                        <td>#}
+{#                                                            <input type="button"  onClick="deltrthree(this)" value="删行">#}
+{#                                                        </td>#}
+{#                                                    </tbody>#}
+{#                                                </table>#}
+{#                                                {% ifequal ad_ips 'None'%}#}
+{#                                                    <table id="dynamicTablethree" width="400" border="0" cellspacing="0" cellpadding="0">#}
+{#                                                        <tbody>#}
+{#                                                        <tr >#}
+{#                                                            <td align="center">#}
+{#                                                                <input type="text" placeholder="ad服务器ip" name="name" /></td>#}
+{#                                                            <td>#}
+{#                                                                                                            <input type="button" id="btn_addtrthree" value="增加">#}
+{#                                                                                                            <input type="button" style="display:none;"  onClick="deltrthree(this)" value="删行">#}
+{#                                                            </td>#}
+{#                                                        </tr>#}
+{#                                                        </tbody>#}
+{#                                                    </table>#}
+{#                                                {% else %}#}
+{#                                                    <table id="dynamicTablethree">#}
+{##}
+{#                                                        <tbody>#}
+{#                                                        {% for i in ad_ips %}#}
+{#                                                            <tr >#}
+{#                                                                <td>#}
+{#                                                                    <input type="text" placeholder="ad服务器ip" name="name"  value="{{ i }}" ></td>#}
+{#                                                                <td>#}
+{#                                                                    <input type="button"  onClick="deltrthree(this)" value="删行">#}
+{#                                                                </td>#}
+{#                                                            </tr>#}
+{#                                                        {% endfor %}#}
+{#                                                        </tbody>#}
+{#                                                    </table>#}
+{##}
+{#                                                {% endifequal %}#}
+{#                                                <span class="help-block m-b-none" style="color:#ac2925;"><i class="fa fa-info-circle"></i>用作判断账号是否锁定，需要填写所有ad服务器ip</span>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{##}
+{#                                        {% ifequal ad_ips 'None' %}#}
+{#                                            <button  onclick="addadips()" class="btn btn-primary">添加</button>#}
+{#                                        {% else %}#}
+{#                                            <button  onclick="deladdadips()" class="btn btn-primary">清除配置</button>#}
+{#                                            <button  onclick="addadips()" class="btn btn-primary">更新配置</button>#}
+{#                                        {% endifequal %}#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">IT人员隶属组配置信息</div>
+                                <div class="panel-body">
+                                    <div  class="form-horizontal">
+
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label">组名</label>
+                                            <div class="col-lg-3">
+                                                <input id="itgroup-name"  placeholder="群组samaccountname值" class="form-control" {% ifequal it_group 'None' %}{% else %} value="{{ it_group }}" readonly="readonly"{% endifequal %}>
+                                            </div>
+                                        </div>
+
+                                        {% ifequal it_group 'None' %}
+                                            <button  onclick="itgroupsearch()" class="btn btn-primary">搜索</button>
+                                        {% else %}
+                                            <button  onclick="delitgroup()" class="btn btn-primary">清除配置</button>
+                                            <div class="panel-body">
+                                                <div class="panel-heading">
+                                                    <button class="btn btn-default btn-rounded" onclick="addgroupmember()">添加成员</button>
+                                                    <button class="btn btn-default btn-rounded" onclick="removeallgroupmember()">清空成员</button>
+                                                    <div class="input-group date" style="width:15%;float: right" >
+                                                        <input type="text" class="form-control" id="findmailchange">
+                                                        <span class="input-group-addon">
+                                    <span class="fa fa-search">
+                                    </span>
+                                </span>
+                                                    </div>
+                                                </div></div>
+                                            <table class="table" id="tables">
+                                            </table>
+                                        {% endifequal %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endifequal %}
+            {% endifequal %}
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">管理员密码修改</div>
+                        <div class="panel-body">
+                            <div  class="form-horizontal">
+
+                                <div class="form-group">
+                                    <label class="col-lg-2 control-label">账号</label>
+                                    <div class="col-lg-3">
+                                        <input id="admin-name"   class="form-control" value="administrator" readonly="readonly">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-lg-2 control-label">原密码</label>
+                                    <div class="col-lg-3">
+                                        <input id="admin-oldpwd"   class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-lg-2 control-label">新密码</label>
+                                    <div class="col-lg-3">
+                                        <input id="admin-newpwd"   class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-lg-2 control-label">确认新密码</label>
+                                    <div class="col-lg-3">
+                                        <input id="admin-realnewpwd"   class="form-control">
+                                    </div>
+                                </div>
+                                <button  onclick="changepwd()" class="btn btn-primary">修改密码</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endifequal %}
+        <!--end page content-->
+
+        <div class="modal inmodal fade" id="myModal5" tabindex="-1" role="dialog"  aria-hidden="true" style="margin-top: 50px">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="fa fa-times-circle"></span></button>
+                        <h3 class="modal-title" id="myModalLabel"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">成员添加</font></font></h3><input id="groupsamaccountvalue" style="display: none">
+                    </div>
+                    <div class="modal-body" style="overflow:hidden">
+                        <div class="modal-form">
+                            <label class="col-md-4 control-label">添加域（AD）账户</label>
+                            <input class="form-control" id="adduserlist" name="setattribute" placeholder="多个账号，请用换行" readonly="readonly" style="width: 50%;border:0px">
+                            <textarea class="form-control" rows="5" id="groupmembers" placeholder="all&#10;test&#10;XXXXX" onkeyup="value=value.replace(' ','')"></textarea>
+                            <span id="membersnull" class="help-block" style="display:none;color:#e73d4a">成员不能为空×</span>
+                            <hr>
+                        </div>
+                        <div class="modal-body">
+                            <div class="text-center">
+                                <p>
+                                    <a class="pull-right"  data-dismiss="modal" href="#" style="margin-left: 5%">关闭</a>
+                                    <a class="pull-right" href="#" onclick="addgroupmembers()">添加</a>
+                                </p>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Start footer-->
+        <footer class="footer">
+            <span>Copyright © 2016. Float</span>
+        </footer>
+        <!--end footer-->
+    {% endblock %}
+</section>
+
+<!--main content start-->
+
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/jquery.slimscroll.min.js"></script>
+<script src="/static/js/jquery.nanoscroller.min.js"></script>
+<script src="/static/js/metismenu.min.js"></script>
+<script src="/static/js/float-custom.js"></script>
+<script src="/static/sweetalert/sweetalert.min.js"></script>
+<script src="/static/js/bootstrap-table.min.js"></script>
+<script src="/static/js/bootstrap-table-zh-CN.min.js"></script>
+<script src="/static/js/fixXss.js"></script>
+{% block custom_js %}
+
+    <script>
+
+{#    function deladdadips() {#}
+{#            swal({#}
+{#                title: "确定删除吗？",#}
+{#                text: "删除后需要重置配置",#}
+{#                type: "warning",#}
+{#                showCancelButton: true,#}
+{#                closeOnConfirm: false,#}
+{#                confirmButtonText:'确定删除'#}
+{#            }, function () {#}
+{#                $.ajax({#}
+{#                    url:{% url "deladdadips" %},#}
+{#                    type:'POST',#}
+{#                    dataType:'json',#}
+{#                    async: false,#}
+{#                    success:function (data) {#}
+{#                        if (data['isSuccess']){#}
+{#                            swal({#}
+{#                                title: "恭喜！",#}
+{#                                text: "配置删除成功",#}
+{#                                type: "success",#}
+{#                                showCancelButton: false,#}
+{#                                closeOnConfirm: true#}
+{#                            }, function () {#}
+{#                                location.reload()#}
+{#                            });#}
+                            {##}
+                            {#                        alert('配置123')#}
+{#                        }#}
+{#                        else {#}
+{##}
+{#                            swal({#}
+{#                                title: "错误！",#}
+{#                                text: "配置删除出错",#}
+{#                                type: "error",#}
+{#                                showCancelButton: false,#}
+{#                                closeOnConfirm: true#}
+{#                            },function () {#}
+{#                                location.reload()#}
+{#                            });#}
+{#                        }#}
+{#                    }#}
+{#                });#}
+{##}
+{#    }#}
+{#    )}#}
+{##}
+{#        function addadips() {#}
+{#            var tabone = document.getElementById("dynamicTablethree").getElementsByTagName('input');#}
+{#            var networklist=[];#}
+{#            var exp=/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;#}
+{#            var reg = null;#}
+{#            for(var z = 0; z < tabone.length; z++)#}
+{#            {#}
+{#                if(tabone[z].type=='text'){#}
+{#                    reg = tabone[z].value.match(exp);#}
+{#                    if(reg!=null)#}
+{#                    {#}
+{#                        networklist.push(tabone[z].value)#}
+{#                    }#}
+{#                }#}
+{#            }#}
+{#            if (networklist.length < 1){#}
+{#                swal({#}
+{#                    title: "至少设置一个正确IP",#}
+{#                    type: "error",#}
+{#                    showCancelButton: false,#}
+{#                    closeOnConfirm: false#}
+{#                });#}
+{#            }#}
+{#            else{#}
+{#            $.ajax({#}
+{#                url:{% url "addadips" %},#}
+{#                type:'POST',#}
+{#                dataType:'json',#}
+{#                async: false,#}
+{#                traditional:true,#}
+{#                data:{"adips":networklist},#}
+{#                success:function (data) {#}
+{#                    if (data['isSuccess']){#}
+{#                        swal({#}
+{#                            title: "恭喜！",#}
+{#                            text: "设置成功",#}
+{#                            type: "success",#}
+{#                            showCancelButton: false,#}
+{#                            closeOnConfirm: false#}
+{#                        }, function () {#}
+{#                            location.reload()#}
+{#                        });#}
+                        {##}
+                        {#                        alert('配置123')#}
+{#                    }#}
+{#                    else {#}
+{##}
+{#                        swal({#}
+{#                            title: "设置失败",#}
+{#                            text: data['message'],#}
+{#                            type: "error",#}
+{#                            showCancelButton: false,#}
+{#                            closeOnConfirm: false#}
+{#                        });#}
+{#                    }#}
+{##}
+{#                }#}
+{#            })#}
+{#            }#}
+{##}
+{#        }#}
+
+        $(function () {
+            var show_count = 200;   //要显示的条数
+            var count = 1;    //递增的开始值，这里是你的ID
+            $("#btn_addtrthree").click(function () {
+                var length = $("#dynamicTablethree tbody tr").length;
+                //alert(length);
+                if (length < show_count)    //点击时候，如果当前的数字小于递增结束的条件
+                {
+                    $("#tabthree tbody tr").clone().appendTo("#dynamicTablethree tbody");   //在表格后面添加一行
+                }
+            });
+        });
+        function deltrthree(opp) {
+            var length = $("#dynamicTablethree tbody tr").length;
+            //alert(length);
+            if (length <= 1) {
+                swal({
+                    title: "至少保留一行",
+                    type: "warning",
+                    showCancelButton: false,
+                    closeOnConfirm: false
+                });
+            } else {
+                $(opp).parent().parent().remove();//移除当前行
+            }
+        }
+        function changepwd() {
+            var adminoldpwd = document.getElementById("admin-oldpwd").value;
+            var adminnewpwd = document.getElementById("admin-newpwd").value;
+            var adminrealnewpwd = document.getElementById("admin-realnewpwd").value;
+            $.ajax({
+                url:{% url "changeadminpwd" %},
+                type:'POST',
+                dataType:'json',
+                async: false,
+                data:{"adminoldpwd":adminoldpwd,"adminnewpwd":adminnewpwd,"adminrealnewpwd":adminrealnewpwd},
+                success:function (data) {
+                    if (data['isSuccess']){
+                        swal({
+                            title: "恭喜！",
+                            text: "密码更改成功",
+                            type: "success",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        }, function () {
+                            location.reload()
+                        });
+                        {##}
+                        {#                        alert('配置123')#}
+                    }
+                    else {
+
+                        swal({
+                            title: "密码更改失败",
+                            text: data['message'],
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                    }
+                }
+            })
+
+        }
+        function testmysql() {
+            var inputip = document.getElementById("input-ip").value;
+            var inputusername = document.getElementById("input-username").value;
+            var inputpassword = document.getElementById("input-password").value;
+            var inputport = document.getElementById("input-port").value;
+            $.ajax({
+                url:{% url "mysqllinktest" %},
+                type:'POST',
+                dataType:'json',
+                async: false,
+                data:{"inputip":inputip,"inputusername":inputusername,"inputpassword":inputpassword,"inputport":inputport},
+                success:function (data) {
+                    if (data['servervmsqltestvalue']){
+                        swal({
+                            title: "恭喜！",
+                            text: "数据库连接成功",
+                            type: "success",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        }, function () {
+                            location.reload()
+                        });
+                        {##}
+                        {#                        alert('配置123')#}
+                    }
+                    else {
+
+                        swal({
+                            title: "错误！",
+                            text: "数据库连接失败",
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                    }
+                }
+            })
+
+        }
+        function delmysql() {
+            swal({
+                title: "确定删除吗？",
+                text: "删除后需要重置配置",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定删除'
+            }, function () {
+                $.ajax({
+                    url:{% url "delmysqllink" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    success:function (data) {
+                        if (data['servervmsqltestvalue']){
+                            swal({
+                                title: "恭喜！",
+                                text: "配置删除成功",
+                                type: "success",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            }, function () {
+                                location.reload()
+                            });
+                            {##}
+                            {#                        alert('配置123')#}
+                        }
+                        else {
+
+                            swal({
+                                title: "错误！",
+                                text: "配置删除出错",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            },function () {
+                                location.reload()
+                            });
+                        }
+                    }
+                });
+
+            })
+        }
+        function deliislink() {
+            swal({
+                title: "确定删除吗？",
+                text: "删除后需要重置配置",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定删除'
+            }, function () {
+                $.ajax({
+                    url:{% url "deliislink" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    success:function (data) {
+                        if (data['servervmsqltestvalue']){
+                            swal({
+                                title: "恭喜！",
+                                text: "配置删除成功",
+                                type: "success",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            }, function () {
+                                location.reload()
+                            });
+                            {##}
+                            {#                        alert('配置123')#}
+                        }
+                        else {
+
+                            swal({
+                                title: "错误！",
+                                text: "配置删除出错",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            },function () {
+                                location.reload()
+                            });
+                        }
+                    }
+                });
+
+            })
+        }
+        function delitgroup() {
+            swal({
+                title: "确定删除吗？",
+                text: "删除后需要重置配置",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定删除'
+            }, function () {
+                $.ajax({
+                    url:{% url "delitgroup" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    success:function (data) {
+                        if (data['serverviistestvalue']){
+                            swal({
+                                title: "恭喜！",
+                                text: "配置删除成功",
+                                type: "success",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            }, function () {
+                                location.reload()
+                            });
+                            {##}
+                            {#                        alert('配置123')#}
+                        }
+                        else {
+
+                            swal({
+                                title: "错误！",
+                                text: "配置删除出错",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            },function () {
+                                location.reload()
+                            });
+                        }
+                    }
+                });
+
+            })
+        }
+        function deladlink() {
+            swal({
+                title: "确定删除吗？",
+                text: "删除后需要重置配置",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定删除'
+            }, function () {
+                $.ajax({
+                    url:{% url "deladlink" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    success:function (data) {
+                        if (data['servervmsqltestvalue']){
+                            swal({
+                                title: "恭喜！",
+                                text: "配置删除成功",
+                                type: "success",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            }, function () {
+                                location.reload()
+                            });
+                            {##}
+                            {#                        alert('配置123')#}
+                        }
+                        else {
+
+                            swal({
+                                title: "错误！",
+                                text: "配置删除出错",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            },function () {
+                                location.reload()
+                            });
+                        }
+                    }
+                });
+
+            })
+        }
+        function delexlink() {
+            swal({
+                title: "确定删除吗？",
+                text: "删除后需要重置配置",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定删除'
+            }, function () {
+                $.ajax({
+                    url:{% url "delexlink" %},
+                    type:'POST',
+                    dataType:'json',
+                    async: false,
+                    success:function (data) {
+                        if (data['servervmsqltestvalue']){
+                            swal({
+                                title: "恭喜！",
+                                text: "配置删除成功",
+                                type: "success",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            }, function () {
+                                location.reload()
+                            });
+                            {##}
+                            {#                        alert('配置123')#}
+                        }
+                        else {
+
+                            swal({
+                                title: "错误！",
+                                text: "配置删除出错",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            },function () {
+                                location.reload()
+                            });
+                        }
+                    }
+                });
+
+            })
+        }
+        function iislinktest() {
+            var iisinputip = document.getElementById("iisinput-ip").value;
+            var iisinputport = document.getElementById("iisinput-port").value;
+            $.ajax({
+                url:{% url "iislinktest" %},
+                type:'POST',
+                dataType:'json',
+                async: false,
+                data:{"iisinputip":iisinputip,"iisinputport":iisinputport},
+                success:function (data) {
+                    if (data['serverviistestvalue']){
+                        swal({
+                            title: "恭喜！",
+                            text: "IIS连接成功",
+                            type: "success",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        }, function () {
+                            location.reload()
+                        });
+                    }
+                    else {
+                        swal({
+                            title: "错误！",
+                            text: "IIS连接失败",
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                    }
+                }
+            })
+        }
+        function adlinktest() {
+            var adinputip = document.getElementById("adinput-ip").value;
+            var adinputaccount = document.getElementById("adinput-account").value;
+            var adinputpassword = document.getElementById("adinput-password").value;
+            var adinputdomain = document.getElementById("adinput-domain").value;
+            var adinputpath = document.getElementById("adinput-path").value;
+            $.ajax({
+                url:{% url "adlinktest" %},
+                type:'POST',
+                dataType:'json',
+                async: false,
+                data:{"adinputip":adinputip,"adinputaccount":adinputaccount,"adinputpassword":adinputpassword,"adinputdomain":adinputdomain,"adinputpath":adinputpath},
+                success:function (data) {
+                    if (data['serverviistestvalue']){
+                        swal({
+                            title: "恭喜！",
+                            text: "AD连接成功",
+                            type: "success",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        }, function () {
+                            location.reload()
+                        });
+                    }
+                    else {
+                        swal({
+                            title: "错误！",
+                            text: "AD连接失败",
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                    }
+                }
+            })
+        }
+        function exlinktest() {
+            var exinputip = document.getElementById("exinput-ip").value;
+            var exinputaccount = document.getElementById("exinput-account").value;
+            var exinputpassword = document.getElementById("exinput-password").value;
+            var exinputdomain = document.getElementById("exinput-domain").value;
+            $.ajax({
+                url:{% url "exlinktest" %},
+                type:'POST',
+                dataType:'json',
+                async: false,
+                data:{"exinputip":exinputip,"exinputaccount":exinputaccount,"exinputpassword":exinputpassword,"exinputdomain":exinputdomain},
+                success:function (data) {
+                    if (data['serverviistestvalue']){
+                        swal({
+                            title: "恭喜！",
+                            text: "Exchange连接成功",
+                            type: "success",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        }, function () {
+                            location.reload()
+                        });
+                    }
+                    else {
+                        swal({
+                            title: "错误！",
+                            text: "Exchange连接失败",
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                    }
+                }
+            })
+        }
+        function itgroupsearch() {
+            var itgroupname = document.getElementById("itgroup-name").value;
+            $.ajax({
+                url:{% url "itgroupsearch" %},
+                type:'POST',
+                dataType:'json',
+                async: false,
+                data:{"itgroupname":itgroupname},
+                success:function (data) {
+                    if (data['serverviistestvalue']){
+                        swal({
+                            title: "恭喜！",
+                            text: "IT人员组设置成功",
+                            type: "success",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        }, function () {
+                            location.reload()
+                        });
+                    }
+                    else {
+                        swal({
+                            title: "错误！",
+                            text: "IT人员组设置失败",
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                    }
+                }
+            })
+        }
+
+        function removeallgroupmember() {
+            var itgroupname = document.getElementById("itgroup-name").value;
+            swal({
+                        title: '确定清空权限吗？',
+                        type: "warning",
+                        showCancelButton: true,
+                        closeOnConfirm: false,
+                        showLoaderOnConfirm: true,
+                        confirmButtonText: "确定删除",
+                        cancelButtonText: "我在想想"
+                    }
+                    , function () {
+                        $.ajax({
+                            url: {% url "removeallgroupmemberfromadmin" %},
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {'groupname': itgroupname},
+                            async: false,
+                            success: function (data) {
+                                if(data['isSuccess']){
+                                    swal({
+                                        title: "清空成功",
+                                        type: "success",
+                                        showCancelButton: false,
+                                        closeOnConfirm: false
+                                    },function(){location.reload()});
+                                }
+                                else {
+                                    swal({
+                                        title: "清空失败",
+                                        text: data['message'],
+                                        type: "error",
+                                        showCancelButton: false,
+                                        closeOnConfirm: false
+                                    });
+                                }
+                            }})}
+
+
+            );
+        }
+        function addgroupmembers() {
+            var groupmembersvalue =  document.getElementById('groupmembers').value;
+            var itgroupname = document.getElementById("itgroup-name").value;
+            if (groupmembersvalue.replace(/[\r\n]/g,"") == ""){
+                swal({
+                    title: "请输入要添加的成员",
+                    type: "error",
+                    showCancelButton: false,
+                    closeOnConfirm: false
+                });
+            }
+            else {
+                $.ajax({
+                    url: {% url "addgroupmembersfromadmin" %},
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {'groupname': itgroupname,'groupmembersvalue':groupmembersvalue},
+                    async: true,
+                    success: function (data) {
+                        if(!data['isSuccess']){
+                            swal({
+                                title: "请输入要添加的成员",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: false
+                            });
+                        }
+                        else {
+                            if(data['message']==""){
+                                datamessage = "无";
+                            }
+                            else {
+                                datamessage = data['message'];
+                            }
+                            swal({
+                                title: "添加成功！",
+                                text:"添加失败"+data['lenerrorlist']+"人：&#10;<textarea style='height:100px'>"+datamessage+"</textarea>",
+                                type: "success",
+                                html:true,
+                                showCancelButton: false,
+                                closeOnConfirm: false
+                            }, function () {
+                                location.reload()
+                            });
+                        }
+                    }
+                })
+            }
+        }
+        function addgroupmember() {
+
+            $('#myModal5').modal({
+                keyboard: true,
+                backdrop:true
+            });
+        }
+        function delmailmemberfromadmin(username) {
+            var itgroupname = document.getElementById("itgroup-name").value;
+            $.ajax({
+                url: {% url "delmailmemberfromadmin" %},
+                type: 'POST',
+                dataType: 'json',
+                data: {'groupname': itgroupname,'groupmembersvalue':username},
+                async: true,
+                success: function (data) {
+                    if(data['lastvalue']){
+                        swal({
+                            title: "移除成功",
+                            type: "success",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        }, function () {
+                            location.reload()
+                        });
+                    }
+                    else {
+                        swal({
+                            title: "移除失败",
+                            text: data['message'],
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                    }
+                }
+            })
+        }
+
+        $("#findmailchange").bind("input propertychange",function(){
+            var storeId = document.getElementById('tables');//获取table的id标识
+            var rowsLength = storeId.rows.length;//表格总共有多少行
+            var key =document.getElementById('findmailchange').value;//获取输入框的值
+            var searchCol = 0;//要搜索的哪一列，这里是第一列，从0开始数起
+            var searchCol1 = 1;//要搜索的哪一列，这里是第一列，从0开始数起
+            for(var i=1;i<rowsLength;i++) {//按表的行数进行循环，本例第一行是标题，所以i=1，从第二行开始筛选（从0数起）
+                var searchText = storeId.rows[i].cells[searchCol].innerHTML;//取得table行，列的值
+                var searchText1 = storeId.rows[i].cells[searchCol1].innerHTML;//取得table行，列的值
+                if (searchText.match(key)||searchText1.match(key)) {//用match函数进行筛选，如果input的值，即变量 key的值为空，返回的是ture，
+                    storeId.rows[i].style.display = '';//显示行操作，
+                }
+                else {
+                    storeId.rows[i].style.display = 'none';//隐藏行操作
+                }
+            }
+        });
+        $ (function () {
+            var itgroupname = document.getElementById("itgroup-name").value;
+            $.ajax({
+                url: {% url "showitgroupmembers" %},
+                type: 'POST',
+                dataType: 'json',
+                data:{"groupname":itgroupname},
+                success: function (data) {
+                    $('#tables').bootstrapTable('load',data['rows']);
+                }
+            });
+
+        });
+        $(function () {
+
+            //1.初始化Table
+            var oTable = new TableInit();
+            oTable.Init();
+        });
+        var TableInit = function () {
+            var oTableInit = new Object();
+            //初始化Table
+            oTableInit.Init = function () {
+                $('#tables').bootstrapTable({
+
+                    strictSearch: false,                //服务器搜索
+                    pagination: true,                   //是否显示分页（*）
+                    sortable: false,                     //是否启用排序
+                    sortOrder: "asc",                   //排序方式
+                    queryParams: oTableInit.queryParams,//传递参数（*）
+                    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber:1,                       //初始化加载第一页，默认第一页
+                    pageSize: 100,                       //每页的记录行数（*）
+                    pageList: [100, 250, 500, 1000],        //可供选择的每页的行数（*）
+                    search: false,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                    minimumCountColumns: 2,             //最少允许的列数
+                    columns: [{
+                        title: '显示名称',
+                        field: 'displayName',
+                        formatter : function(value,
+                                             row, index) {
+                            return fixXss(row["displayName"]);
+                        }
+                    },  {
+                        title: 'ad账号',
+                        field: 'sAMAccountName'
+                    },  {
+                        title: '操作',
+                        field: 'sAMAccountName',
+                        formatter : function(value,
+                                             row, index) {
+                            return '<a class="green-color" href="#" onclick="delmailmemberfromadmin(\''+row["sAMAccountName"]+'\')">删除</a> ';
+                        }
+                    }
+                    ],
+
+                    responseHandler:function (data) {
+                        var adminflag = data["total"];
+                        document.getElementById("membercount").innerHTML = adminflag;
+                        return data;
+                    },
+                    formatLoadingMessage: function () {
+                        return "请稍等，正在加载中...";
+                    },
+                    formatNoMatches: function () {  //没有匹配的结果
+                        return '没找到任何成员';
+                    },
+                    striped:true
+                });
+            };
+            //得到查询的参数
+            oTableInit.queryParams = function (params) {
+                var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                    limit: params.limit,   //页面大小
+                    offset: params.offset,  //页码
+                    departmentname: $("#txt_search_departmentname").val(),
+                    statu: $("#txt_search_statu").val()
+                };
+                return temp;
+            };
+            return oTableInit;
+        };
+    </script>
+{% endblock %}
+</body>
+</html>

@@ -1,0 +1,73 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    <title>我的文件夹权限</title>
+{% endblock %}
+
+{% block custom_css %}
+
+{% endblock %}
+
+{% block content %}
+
+    <!--page header start-->
+    <div class="page-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4>我的文件夹权限</h4>
+                    </div>
+                </div>
+            </div>
+    <!--page header end-->
+    <!--start page content-->
+    <div class="row">
+                <div class="col-sm-12">
+                    <h5 style="color: #23b7e5">文件夹权限数据从AD域获取！</h5>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                        <table id="datatable1" class="table table-striped dt-responsive nowrap table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        <strong>权限使用人账号</strong>
+                                                    </th>
+                                                    <th>
+                                                        <strong>权限使用人</strong>
+                                                    </th>
+                                                    <th>
+                                                        <strong>文件夹权限</strong>
+                                                    </th>
+                                                    <th>
+                                                        <strong>当前状态</strong>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% if DfsGroupLists != '' %}
+                                                {% for DfsGroup in DfsGroupLists %}
+                                                        <tr>
+                                                           <td>{{ username }}</td>
+                                                           <td>{{ displayname }}</td>
+                                                            <td>{{ DfsGroup }}</td>
+                                                           <td>已开通</td>
+                                                           </tr>
+                                                       {% endfor %}
+                                            {% endif %}
+                                            </tbody>
+                                        </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </div>
+
+    <!--end page content-->
+
+{% endblock %}
+
+{% block custom_js %}
+
+{% endblock %}

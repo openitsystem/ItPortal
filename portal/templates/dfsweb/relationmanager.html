@@ -1,0 +1,462 @@
+{% extends 'index.html' %}
+
+{% block title %}
+   <title>文件夹权限管理</title>
+{% endblock %}
+
+{% block custom_css %}
+    <link href="/static/css/bootstrap-select.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="/static/css/bootstrap-table.min.css">
+{% endblock %}
+
+{% block content %}
+
+    <!--page header start-->
+    <div class="page-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4>文件夹权限管理</h4>
+                    </div>
+                </div>
+            </div>
+    <!--page header end-->
+    <!--start page content-->
+    <div class="row">
+                <div class="col-sm-12">
+                    <h5 style="color: #23b7e5">管理下的文件夹人员权限的管理页面(当数据量大的时候，搜索比较慢)</h5>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <fieldset class="jquery-Ui-fieldset">
+{#                                                <label for="simple">Default style</label>#}
+                                                <select id="level2id" class="selectpicker" data-hide-disabled="true" data-live-search="true">
+                                                    <option value="-1" >管理的文件夹</option>
+                                                    {% for level2namelist in level2namelists %}
+                                                    <option value='{{ level2namelist.level2_id}}'>{{ level2namelist.name}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <select id="level3id" class="selectpicker" data-hide-disabled="true" data-live-search="true">
+                                                    <option value="-1" >查询文件夹</option>
+                                                </select>
+                                                <select id="groupid" class="selectpicker">
+                                                    <option value="-1">权限类型</option>
+                                                    <option value="0" >查看</option>
+                                                    <option value="1" >修改</option>
+                                                </select>
+                                            <button type="button" class="btn btn-primary btn-rounded btn-border btn-sm" onclick="searchnameinfo()"><i class="fa fa-cloud-download"></i>&nbsp搜索</button>
+                                             <div style="float: right">
+                                            <button  type="button" class="btn btn-primary btn-rounded btn-border btn-sm" data-toggle="modal" data-target="#setrelation">&nbsp修改文件夹管理员</button>
+                                             </div>
+                                            </fieldset>
+                                        </div><!--end col-->
+
+                                    </div><!--end row-->
+                                    <div class="row" id="table">
+                                        <div class="col-md-12" id='relationgroupinfo'style="display: none">
+                                            <div class="table-responsive">
+                                            <div class="portlet light bordered">
+                                                <div class="portlet-body">
+                                                    <div id="toolbar" class="btn-group">
+                                                        <button id="btn_add" type="button" class="btn btn-primary btn-rounded btn-border btn-sm" data-toggle="modal" data-target="#AddPermissionsToMod">
+                                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+                                                        </button>
+                                                        <button id="btn_delete" type="button" class="btn btn-warning btn-border btn-rounded btn-sm" onclick="DelPermissions()">
+                                                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
+                                                        </button>
+                                                    </div>
+                                                   <table id="temptable">
+
+                                                   </table>
+                                                </div>
+{#                                                <div align="center">#}
+{#                                                    <button  type="button" class="btn btn-primary btn-rounded btn-border btn-sm" style=" width:300px;font-size: 18px " id="saveapply" onclick="saveapplyinfo()">提交</button>#}
+{#                                                </div>#}
+                                            </div>
+                                                </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    <!--end page content-->
+    <!-- 模态框（Modal1） -->
+    <div class="modal fade" id="AddPermissionsToMod" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                            &times;
+                                        </button>
+                                        <h4 class="modal-title" id="myModalLabel">
+                                            一键添加权限
+                                        </h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                    <label  class="col-md-4 control-label">添加AD账户</label>
+                                                     <input class="form-control" id="addname123" name="setattribute"  placeholder="如果是多个账号，请用换行（Enter回车)" readonly="readonly" style="width: 51%;border:0px">
+                                                    <textarea class="form-control" rows="5" id="groupmembers" placeholder="all&#10;test&#10;XXXXX" onkeyup="value=value.replace(/[^\r\n\a-\z\A-\Z\.\-\_0-9]/g,'')"></textarea>
+                                                     <span id="membersnull" class="help-block" style="display:none;color:#e73d4a">成员不能为空×</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button  type="button" class="btn btn-warning btn-border btn-rounded" data-dismiss="modal">&nbsp关闭</button>
+                                        <button  type="submit" class="btn btn-primary btn-rounded btn-border" onclick="AddPermissions()">&nbsp确定</button>
+                                    </div>
+                                </div><!-- /.modal-content -->
+                            </div><!-- /.modal -->
+                            </div>
+    <div class="modal fade" id="setrelation" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        修改文件夹管理员
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="col-md-3 control-label" for="level2">二级目录名</label>
+                            <div class="col-md-6">
+                                <select id="level2id_modal" class="selectpicker" data-hide-disabled="true" data-live-search="true">
+                                    <option value="-1" >管理的二级文件夹</option>
+                                    {% for level2namelist in level2namelists %}
+                                    <option value='{{ level2namelist.level2_id}}'>{{ level2namelist.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group ">
+                            <label class="col-md-3 control-label" for="UserName">AD账号</label>
+                            <div class="col-sm-6">
+                                <input class="form-control"  id="adaccount_modal" placeholder="AD账号"  type="text" value="" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button  type="button" class="btn btn-warning btn-border btn-rounded" data-dismiss="modal">&nbsp关闭</button>
+                    <button  type="submit" class="btn btn-primary btn-rounded btn-border" onclick="SetRelation()">&nbsp确定</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+
+</div>
+
+{% endblock %}
+
+{% block custom_js %}
+
+    <script src="/static/js/bootstrap-select.js"></script>
+    <script src="/static/js/bootstrap-table.min.js"></script>
+    <script src="/static/js/bootstrap-table-zh-CN.min.js"></script>
+    <script>
+
+    $(".click").click(function(){
+    $(this).attr("disabled","disabled");
+    });
+    $(function () {
+
+    //1.初始化Table
+    var oTable = new TableInit();
+    oTable.Init();
+
+    //2.初始化Button的点击事件
+    var oButtonInit = new ButtonInit();
+    oButtonInit.Init();
+
+});
+
+
+var TableInit = function () {
+    var oTableInit = new Object();
+    //初始化Table
+    oTableInit.Init = function () {
+        $('#temptable').bootstrapTable({
+{#            url: '/Home/GetDepartment',         //请求后台的URL（*）#}
+{#            method: 'get',                      //请求方式（*）#}
+            toolbar: '#toolbar',                //工具按钮用哪个容器
+            striped: true,                      //是否显示行间隔色
+            cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+            pagination: true,                   //是否显示分页（*）
+            sortable: false,                     //是否启用排序
+            sortOrder: "asc",                   //排序方式
+            queryParams: oTableInit.queryParams,//传递参数（*）
+            sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+            pageNumber:1,                       //初始化加载第一页，默认第一页
+            pageSize: 10,                       //每页的记录行数（*）
+            pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+            search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+            strictSearch: false,                //服务器搜索
+            showColumns: false,                  //是否显示所有的列
+            showRefresh: false,                  //是否显示刷新按钮
+            minimumCountColumns: 2,             //最少允许的列数
+            clickToSelect: true,                //是否启用点击选中行
+{#            height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度#}
+            uniqueId: "sAMAccountName",                     //每一行的唯一标识，一般为主键列
+            showToggle:false,                    //是否显示详细视图和列表视图的切换按钮
+            cardView: false,                    //是否显示详细视图
+            detailView: false,                   //是否显示父子表
+            columns: [{
+                checkbox: true
+            }, {
+                field: 'group_name',
+                title: '文件夹权限'
+            }, {
+                field: 'sAMAccountName',
+                title: '成员账号'
+            }, {
+                field: 'displayName',
+                title: '显示名称',
+                formatter : function(value,
+                                     row, index) {
+                    return fixXss(row["displayName"]);
+                }
+            },{
+                field: 'description',
+                title: '描述',
+                formatter : function(value,
+                                     row, index) {
+                    return fixXss(row["description"]);
+                }
+            },
+            ]
+        });
+    };
+
+    //得到查询的参数
+    oTableInit.queryParams = function (params) {
+        var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+            limit: params.limit,   //页面大小
+            offset: params.offset,  //页码
+            departmentname: $("#txt_search_departmentname").val(),
+            statu: $("#txt_search_statu").val()
+        };
+        return temp;
+    };
+    return oTableInit;
+};
+
+
+var ButtonInit = function () {
+    var oInit = new Object();
+    var postdata = {};
+
+    oInit.Init = function () {
+        //初始化页面上面的按钮事件
+    };
+
+    return oInit;
+};
+
+    $(document).ready(function(){
+            $("#level2id").change(function(){
+                        var level2idinfo= $("#level2id").val();
+
+                if (level2idinfo != -1){
+                    $.ajax({
+                        url:{% url "level3info" %},
+                        type:'POST',
+                        dataType:'json',
+                        data:{'level2idinfo':level2idinfo},
+                        success:function(data){
+                            var aa=data['dict_level3'];
+                            var $emplevel3 = $("#level3id")
+                            $emplevel3.empty();
+                            $emplevel3.append('<option value="-1" >查询文件夹</option>');
+                            for(var i=0;i<aa.length;i++){
+                                var $newOption ="<option value='" +aa[i][0] +"'>"+ aa[i][1]+"</option>";
+                                 $emplevel3.append($newOption);
+                            }
+                            $('#level3id').selectpicker('render');
+                            $('#level3id').selectpicker('refresh');
+                        }
+                    });
+                }
+                else {
+                            var $emplevel3 = $("#level3id")
+                            $emplevel3.empty();
+                            $emplevel3.append('<option value="-1" >查询文件夹</option>');
+                            $('#level3id').selectpicker('render');
+                            $('#level3id').selectpicker('refresh');
+                }
+
+
+               });
+        });
+    function searchnameinfo(){
+        var level2_id = $("#level2id option:selected").val();
+        var folder_level3_id = $("#level3id option:selected").val();
+        var perm_value = $("#groupid option:selected").text();
+        var group_id = $("#groupid option:selected").val();
+        $("#showtable").empty("");
+        if(level2_id == -1){
+            swal("请选择你管理的文件夹！");
+        }
+        else if(folder_level3_id == -1){
+            swal("请选择你查询的文件夹！");
+        }
+        else if(group_id == -1){
+            swal("请选择权限类型！");
+        }
+        else{
+            $.ajax({
+                    url: {% url "searchgroupnamebyrelation" %},
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {'folder_level3_id': folder_level3_id, 'perm_value': perm_value},
+                    success: function (data) {
+                        var data_group=data['data'];
+                        document.getElementById("relationgroupinfo").style.display = "inline";
+                        if (data_group['isSuccess']){
+                            $('#temptable').bootstrapTable('load',data_group['message']['temptable_date']);
+                        }else {
+                            $('#temptable').bootstrapTable('removeAll');
+                            swal(data_group['message']);
+                        }
+                    }
+                });
+
+        }
+
+    }
+
+    function DelPermissions() {
+        var getSelections = $('#temptable').bootstrapTable('getSelections');
+        if(getSelections.length == 0) {
+            swal("请选择一行权限，进行删除！");
+          }
+        else if(getSelections!=0){
+              swal({
+                    title: "你确定一键删除吗？",
+{#                    text: "关闭后兼职人员将无法使用",#}
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    closeOnConfirm: false
+                },
+                function(){
+                $.ajax({
+                        url:{% url "AllDelPermissions" %},
+                        type:'POST',
+                        dataType:'json',
+                        data:{'getSelections':JSON.stringify(getSelections)},
+                        success:function(data) {
+                            if (data['status']==1) {
+                                swal({
+                                            title: "一键删除成功！",
+                                            //text:"账号已经成功关闭！",
+                                            type: "success",
+                                            showConfirmButton: "true",
+                                            confirmButtonText: "好的",
+                                            animation: "slide-from-top"
+                                        },
+                                        function () {
+                                            $('#temptable').bootstrapTable('remove',{field: 'sAMAccountName',"values":data['SuccessList']});
+                                        })
+                            }
+                            else {
+                                swal("一键删除失败！");
+                            }
+
+                        }
+                    });
+                });
+        }
+    }
+
+    function AddPermissions() {
+        var folder_level3_id = $("#level3id option:selected").val();
+        var perm_value = $("#groupid option:selected").text();
+        var group_id = $("#groupid option:selected").val();
+        if(folder_level3_id == -1){
+            swal("请选择你查询的文件夹！");
+        }
+        else if(group_id == -1){
+            swal("请选择权限类型！");
+        }
+        else{
+            var groupmembers=document.getElementById("groupmembers").value;
+            if (groupmembers==''){
+                document.getElementById('membersnull').style.display = 'block';
+                swal("成员不能为空");}
+                else {
+                    document.getElementById('membersnull').style.display = 'none';
+                     $.ajax({
+                        url: {% url "AllAddPermissions" %},
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {'folder_level3_id': folder_level3_id, 'perm_value': perm_value,'groupmembers':groupmembers},
+                        success: function (data) {
+                            if(data['status']==1){
+                                    $('#temptable').bootstrapTable('prepend',data['temptable_date']);
+                                    $(".modal").modal("hide");
+                                    document.getElementById("groupmembers").value='';
+                                    swal("一键添加成功！");
+                                }
+                                else {
+                                    $(".modal").modal("hide");
+                                    document.getElementById("groupmembers").value='';
+                                    swal("一键添加失败！");
+                                }
+                        }
+                        });
+
+            }
+
+
+        }
+    }
+
+    function SetRelation(){
+        var level2id_modal = $("#level2id_modal option:selected").val();
+        var adaccount_modal=document.getElementById("adaccount_modal").value;
+        if(level2id_modal!='-1'&& adaccount_modal!=''){
+             $.ajax({
+                    url: {% url "SetRelation" %},
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {'level2id_modal': level2id_modal,'adaccount_modal':adaccount_modal},
+                    success: function (data) {
+                        if (data['isSuccess']) {
+                            swal({
+                                        title:"修改成功",
+                                        text:'',
+                                        type:"success",
+                                        showConfirmButton:"true",
+                                        confirmButtonText:"好的",
+                                        animation:"slide-from-top"
+                                    },function () {
+                                        window.location.reload();
+                                    })
+                        }else {
+                            swal("修改失败："+data['message']);
+                        }
+                        }
+                        });
+        }
+        else {
+            swal("第二层目录跟AD账户不能为空！")
+        }
+
+    }
+    </script>
+
+{% endblock %}

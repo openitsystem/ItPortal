@@ -1,0 +1,143 @@
+{% load static %}
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="shortcut icon" href="../../static/favicon.ico">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{{ doc_title }}</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    {% block style %}
+        <link rel="stylesheet" type="text/css" href="{% static 'django_api_doc/css/bootstrap.min.css' %}"/>
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="{% static 'django_api_doc/font-awesome-4.7.0/css/font-awesome.min.css' %}">
+        <!-- Ionicons -->
+{#        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">#}
+        <!-- Theme style -->
+        <link rel="stylesheet" type="text/css" href="{% static 'django_api_doc/css/AdminLTE.min.css' %}"/>
+        <!-- AdminLTE Skins. We have chosen the skin-blue for this starter
+            page. However, you can choose any other skin. Make sure you
+            apply the skin class to the body tag so the changes take effect.
+        -->
+        <link rel="stylesheet" type="text/css" href="{% static 'django_api_doc/css/skins/'|add:skin|add:'.min.css' %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'django_api_doc/css/style.css' %}"/>
+    {% endblock %}
+</head>
+
+{% block body %}
+<body class="hold-transition {{ skin }} sidebar-mini">
+    <div class="wrapper" id="app">
+        <header class="main-header">
+            <!-- Logo -->
+            <a href="docs.html" class="logo">
+              <!-- mini logo for sidebar mini 50x50 pixels -->
+              <span class="logo-mini">Doc</span>
+              <!-- logo for regular state and mobile devices -->
+              <span class="logo-lg"><b>DFS接口平台</b></span>
+            </a>
+
+            <!-- Header Navbar -->
+            <nav class="navbar navbar-static-top" role="navigation">
+              <!-- Sidebar toggle button-->
+              <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                <span class="sr-only">Toggle navigation</span>
+              </a>
+            </nav>
+        </header>
+        <aside class="main-sidebar">
+            <section class="sidebar">
+                <!-- Sidebar Menu -->
+              <ul class="sidebar-menu">
+                <li class="header">接口名称</li>
+                <!-- Optionally, you can add icons to the links -->
+                {% for url_name in url_names %}
+                <li>
+                    <a href="{{ doc_base_url }}{{ url_name.key }}">
+                        <i class="fa fa-link"></i>
+                        <span>{{ url_name.name }}</span>
+                    </a>
+                </li>
+                {% endfor %}
+
+                {% for url_namespace in url_namespaces %}
+                <li class="treeview">
+                  <a href="#">
+                      <i class="fa fa-link"></i>
+                      <span>{{ url_namespace.name }}</span>
+                      <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                      </span>
+                  </a>
+                  <ul class="treeview-menu">
+                    {% for url_name in url_namespace.url_names %}
+                    <li>
+                        <a href="{{ doc_base_url }}{{ url_name.key }}">{{ url_name.name }}</a>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </li>
+                {% endfor %}
+              </ul>
+            </section>
+        </aside>
+        <div class="content-wrapper">
+            {% if doc %}
+
+            <div class="content-header">
+                <h1>{{ doc.title }}</h1>
+            </div>
+            <div class="content body">
+
+
+{#            判断如果是开放平台，就不显示url选项#}
+            {% if doc.url == "http://api.com/Wiki/Code"%}
+            {% elif doc.url == "http://api.com/encryption_method" %}
+            {% else %}
+                <h3>URL</h3>
+                <alert class="alert">{{ doc.url }}</alert>
+
+            {% endif %}
+
+
+                {% for item in doc.items %}
+                    <section>
+                        <h3 class="page-header">
+
+
+                    {#            判断如果是开放平台，就不显示url选项#}
+            {% if doc.url == "http://api.com/Wiki/Code"%}
+            {% elif doc.url == "http://api.com/encryption_method" %}
+            {% else %}
+                            <a href="#{{ item.method }}">{{ item.method }}</a>
+            {% endif %}
+
+
+                        </h3>
+                        <div>{{ item.content|safe }}</div>
+                    </section>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="content-header">
+                <h1>开放平台</h1>
+            </div>
+
+            {% endif %}
+
+        </div>
+        <footer class="main-footer">
+            <!-- Default to the left -->
+            <strong>©2017-2018 <a href="http://www.opscaff.com/"></a> 版权所有，IT运维（IT）技术支持。</strong>
+        </footer>
+    </div>
+{#    <script src="http://code.jquery.com/jquery-2.2.3.min.js"></script>#}
+    <script src="{% static 'django_api_doc/js/jquery-3.3.1.min.js' %}"></script>
+    <script src="{% static 'django_api_doc/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'django_api_doc/js/app.min.js' %}"></script>
+
+<script>
+</script>
+</body>
+{% endblock %}
+</html>

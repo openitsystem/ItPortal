@@ -1,0 +1,317 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    <title>公共邮箱管理</title>
+{% endblock %}
+
+{% block custom_css %}
+    <link rel="stylesheet" href="/static/css/bootstrap-table.min.css">
+    <link href="/static/css/style.min862f.css?v=4.1.0" rel="stylesheet">
+    <link href="/static/sweetalert/sweetalert.css" rel="stylesheet">
+    <link href="/static/easyfrom/easyform.css" rel="stylesheet" type="text/css">
+
+    <!--template css-->
+{% endblock %}
+
+{% block content %}
+    <div class="modal inmodal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <form class="modal-content animated bounceInRight form-horizontal" id="demo-form" method="post" action="/updatepubmess/">
+                <div class="modal-header">
+                    <h4 class="modal-title">属性修改</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">邮箱地址：</label>
+                        <div class="col-sm-8">
+                            <input id="sancount" name="sancount" style="display:none;">
+                            <input class="form-control" id="pubmailadd" name="pubmailadd" readonly="readonly" style="border:0px;background-color:transparent;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">显示名称：</label>
+                        <div class="col-sm-8">
+                            <input id="oldmanger" name="oldmanger" style="display:none;">
+                            <input type="text" id="displaypub" name="displaypub" class="form-control" data-easyform="regex:^[^ ]+$;" data-message="请勿为空，请勿输入空格" data-easytip="class:easy-red;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">管理员：</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="pbmanger" name="pbmanger" data-easyform="real-time;ajax:acount();" data-message="请输入账号" data-easytip="position:bottom;class:easy-red;" data-message-ajax="未查询到管理者账号" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button style="float:left;" type="button" class="btn btn-danger"  onclick="delmailcount()">删除</button>
+                    <button type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
+                    <input class="btn btn-primary" id="sub" value="保存" type="submit" >
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="page-header">
+        <div class="row">
+            <div class="col-sm-6">
+                <h4>公共邮箱管理</h4>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <table id="temptable" class="table  table-bordered "   >
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block custom_js %}
+    <script src="/static/easyfrom/easyform.js"></script>
+    <script src="/static/js/bootstrap-table.min.js"></script>
+    <script src="/static/js/bootstrap-table-zh-CN.min.js"></script>
+    <script src="/static/sweetalert/sweetalert.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+
+    <script>
+        $(document).ready(function ()
+        {
+            $('#demo-form').easyform();
+        });
+        $ (function () {
+            $.ajax({
+                url: {% url "showmailpumangaer" %},
+                type: 'POST',
+                dataType: 'json',
+                success: function (data) {
+                    $('#temptable').bootstrapTable('load',data['status']);
+                }
+            });
+
+        });
+        function delmailcount(){
+            var count = document.getElementById("sancount").value;
+            swal({
+                title: "确定删除吗？",
+                text: "删除后将无法使用此邮箱",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText:'确定删除'
+            }, function () {
+                $.ajax({
+                    url:{% url "mailcountdel" %},
+                    type:'POST',
+                    dataType:'json',
+                    data:{"count":count},
+                    async: false,
+                    success:function (data) {
+                        if (data['status']==1){
+                            swal({
+                                title: "成功",
+                                text: "公共邮箱删除成功",
+                                type: "success",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            }, function () {
+                                location.reload()
+                            });
+                        }
+                        else {
+                            swal({
+                                title: "错误！",
+                                text: "删除出错",
+                                type: "error",
+                                showCancelButton: false,
+                                closeOnConfirm: true
+                            },function () {
+                                location.reload()
+                            });
+                        }
+                    }
+                });
+            })
+        }
+
+        $(function () {
+
+            //1.初始化Table
+            var oTable = new TableInit();
+            oTable.Init();
+        });
+        var TableInit = function () {
+            var oTableInit = new Object();
+            //初始化Table
+            oTableInit.Init = function () {
+                $('#temptable').bootstrapTable({
+
+                    strictSearch: false,                //服务器搜索
+                    pagination: true,                   //是否显示分页（*）
+                    sortable: false,                     //是否启用排序
+                    sortOrder: "asc",                   //排序方式
+                    queryParams: oTableInit.queryParams,//传递参数（*）
+                    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber:1,                       //初始化加载第一页，默认第一页
+                    pageSize: 10,                       //每页的记录行数（*）
+                    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                    search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                    minimumCountColumns: 2,             //最少允许的列数
+                    columns: [
+                        {
+                            field: 'mail',
+                            title: '公共邮箱地址',
+                            width: '30%'
+                        }, {
+                            field: 'displayname',
+                            title: '显示名称',
+                            formatter : function(value,
+                                                 row, index) {
+                                return fixXss(row["displayname"]);
+                            }
+                        },
+                        {
+                            field: 'PasswordExpirationDate',
+                            title: '密码过期时间',
+                            width: '20%'
+                        },
+                        {
+                            title: '详情',
+                            field: 'test',
+                            width: '20%',
+                            align: 'center',
+                            formatter:function(value,row,index){
+                                return "<a type='button' class='btn btn-default' onclick='showmode(\""+row.mail+"\",\""+row.displayname+"\",\""+row.physicaldeliveryofficename+"\",\""+row.samaccountname+"\")'> 属性查看</a> <a type='button' class='btn btn-default' onclick='resetpwdpubmail(\""+row.samaccountname+"\")'>密码重置</a>";
+                            }}
+                    ],
+                    formatLoadingMessage: function () {
+                        return "请稍等，正在加载中...";
+                    },
+                    formatNoMatches: function () {  //没有匹配的结果
+                        return '暂未找到您管理的公共邮箱';
+                    }
+
+                });
+            };
+            //得到查询的参数
+            oTableInit.queryParams = function (params) {
+                var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                    limit: params.limit,   //页面大小
+                    offset: params.offset,  //页码
+                    departmentname: $("#txt_search_departmentname").val(),
+                    statu: $("#txt_search_statu").val()
+                };
+                return temp;
+            };
+            return oTableInit;
+        };
+        function showmode(mail,maildis,paraoffice,samacoun) {
+            document.getElementById("pubmailadd").value=mail;
+            document.getElementById("displaypub").value=fixXss(maildis);
+            document.getElementById("pbmanger").value=paraoffice;
+            document.getElementById("sancount").value=samacoun;
+            document.getElementById("oldmanger").value=paraoffice;
+            $('#myModal').modal({
+                keyboard: true,
+                backdrop:false
+            });
+        }
+        function acount() {
+            var user = $("#pbmanger").val();
+            if(user){
+                $.ajax({
+                    url:{% url "acountad" %},
+                    type:'POST',
+                    dataType:'json',
+                    data:{'user':user},
+                    async:false,
+                    success: function (data) {
+                        $("#pbmanger").trigger("easyform-ajax", data['status']);
+                    }
+                });
+            }
+        }
+        $(function () {
+            var options = {
+                dataType:"json",
+                async:true,
+                success:function (data) {
+                    if(data['status']==1){
+                        swal({
+                                title:"保存成功。",
+                                text:'',
+                                type:"success",
+                                showConfirmButton:"true",
+                                confirmButtonText:"好的",
+                                animation:"slide-from-top"
+                            },
+                            function () {
+                                window.location.reload();
+                            })
+                    }
+                    else {
+                        swal("出错了，联系 IT 处理");
+                    }
+                },
+                error:function (e) {
+                    swal("出错了，联系 IT 处理");
+                }
+            };
+            $("#demo-form").ajaxForm(options);
+        });
+        function resetpwdpubmail(samcoun) {
+            swal({
+                    title: "确定重置此公共邮箱密码吗？",
+                    text: "重置后请及时告知使用人员",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "确定重置",
+                    cancelButtonText: "取消",
+                    closeOnConfirm: false
+                },
+                function(){
+                    $.ajax({
+                        url:{% url "psdpubmailset" %},
+                        type:'POST',
+                        dataType:'json',
+                        data:{'samcoun':samcoun},
+                        async:false,
+                        success: function (data) {
+                            if(data["isSuccess"]){
+                                swal({
+                                        html:true,
+                                        title: "新密码为 <span style='color:#F44336'>"+data['message']['newpassword']+" <span>",
+                                        text:"密码重置成功 " ,
+                                        type:"success",
+                                        showConfirmButton:"true",
+                                        confirmButtonText:"好的",
+                                        animation:"slide-from-top"
+                                    },
+                                    function () {
+                                        window.location.reload();
+                                    })
+                            }
+                            else{
+                                swal(data['message']['message']);
+                            }
+                        },
+                        error:function (e) {
+                            swal("出错了，请联系 IT 处理");
+                        }
+                    });
+                });
+
+
+
+
+        }
+    </script>
+
+{% endblock %}

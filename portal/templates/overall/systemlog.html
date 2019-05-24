@@ -1,0 +1,153 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    <title>系统日志</title>
+{% endblock %}
+
+{% block custom_css %}
+    <link rel="stylesheet" href="/static/css/bootstrap-table.min.css">
+    {#    <link href="/static/css/style.min862f.css?v=4.1.0" rel="stylesheet">#}
+    <link href="/static/sweetalert/sweetalert.css" rel="stylesheet">
+
+    <!--template css-->
+{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <div class="row">
+            <div class="col-sm-6">
+                <h4> 系统日志</h4>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <table id="tables" class="table  table-bordered " >
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block custom_js %}
+    <script src="/static/js/bootstrap-table.min.js"></script>
+    <script src="/static/js/bootstrap-table-zh-CN.min.js"></script>
+    <script src="/static/sweetalert/sweetalert.min.js"></script>
+    <script>
+        $("#tables").bootstrapTable({
+            url: '{% url "showsystemlog" %}',
+            sidePagination: "server",
+            pageNumber: 1,
+            search: false,
+            queryParams:function (params) {
+                return {
+                    pageSize : params.limit, //每一页的数据行数，默认是上面设置的10(pageSize)
+                    pageIndex : params.offset/params.limit+1 //当前页面,默认是上面设置的1(pageNumber)
+                }
+            },
+            dataType: "json",
+            method: "GET",
+            columns: [{
+                field: 'id',
+                title: 'ID'
+            }, {
+                field: 'username',
+                title: '操作账号'
+            },  {
+                title: '操作ip',
+                field: 'ip',
+                formatter : function(value,
+                                     row, index) {
+                    return fixXss(row["ip"]);
+                }
+            },{
+                field: 'resultvalue',
+                title: '日志类型',
+                    formatter:function(value,row,index){
+                        if(row.resultvalue == 0){
+                            return '<font color="red">报错</font>'
+                        }
+                        else if(row.resultvalue == 1){
+                            return '<font color="green">正常</font>'
+                        }
+                        else {
+                            return  '<font color="darkorange">警告</font>'
+                        }
+                    }
+
+            },  {
+                title: '详情信息',
+                field: 'message',
+                formatter : function(value, row, index) {
+                    return fixXss(row["message"]);
+                }
+            },{
+                field: 'issuccess',
+                title: '执行结果'
+            },{
+                field: 'returnparameters',
+                title: '返回参数',
+                formatter : function(value,
+                                     row, index) {
+                    return fixXss(row["returnparameters"]);
+                }
+            },{
+                field: 'types',
+                title: '日志分类'
+            },{
+                field: 'datetimevalue',
+                title: '时间'
+            }
+            ],
+            formatLoadingMessage: function () {
+                return "请稍等，正在加载中...";
+            },
+            formatNoMatches: function () {  //没有匹配的结果
+                return '暂未找到任何日志';
+            },
+            striped:true,
+            pagination:true
+        });
+
+    </script>
+    <script>
+        function acceptpubmail(id) {
+            $.ajax({
+                url:{% url "pumailaccid" %},
+                type:'POST',
+                dataType:'json',
+                data:{'id':id},
+                async:false,
+                success: function (data) {
+                    if(data["status"]){
+                        swal({
+                                title:"审核成功",
+                                text:'',
+                                type:"success",
+                                showConfirmButton:"true",
+                                confirmButtonText:"好的",
+                                animation:"slide-from-top"
+                            },
+                            function () {
+                                window.location.reload();
+                            }
+                        )
+                    }
+                    else{
+                        swal('出错了，请联系IT处理');
+                    }
+                }
+            });
+        }
+
+    </script>
+
+{% endblock %}

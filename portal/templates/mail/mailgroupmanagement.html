@@ -1,0 +1,485 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    <title>邮箱群组管理</title>
+{% endblock %}
+
+{% block custom_css %}
+    <!--template css-->
+    <link rel="stylesheet" href="/static/css/bootstrap-table.min.css">
+    <link href="/static/css/style.min862f.css?v=4.1.0" rel="stylesheet">
+    <link href="/static/switch/bootstrap-switch.min.css" rel="stylesheet">
+    <link href="/static/sweetalert/sweetalert.css" rel="stylesheet">
+{% endblock %}
+
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="accordion1" class="panel-group accordion">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span aria-hidden="true" class="icon-screen-smartphone"></span>
+                        邮箱群组管理
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <table class="table" id="tables">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal inmodal fade" id="myModal5" tabindex="-1" role="dialog"  aria-hidden="true" style="margin-top: 50px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="fa fa-times-circle"></span></button>
+                    <h3 class="modal-title" id="myModalLabel"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">群组属性修改</font></font></h3><input id="groupsamaccountvalue" style="display: none">
+                </div>
+                <div class="modal-body">
+                    <div class="modal-form">
+                        <div role="form">
+                            <div class="row">
+                                <div class="col-sm-5">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control"  style="border:0px;background:none;" value="群组地址" readonly="readonly">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="email" class="form-control"  style="border:0px;background:none;" readonly="readonly" id="mailgroupemailvalue">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-5">
+                                    <div class="group-icon" >
+                                        <input type="text" class="form-control"  style="border:0px;background:none;"   value="显示名称" readonly="readonly">
+
+                                        <span id="displaynamespanchange"  onclick="changemailgroupdisplanamevalue()" class="fa fa-edit icon-input" style="display: block;cursor:pointer" title="修改"></span>
+                                        <span id="displaynamespansave" onclick="savemailgroupadisplaynamevhangevalue()" class="fa fa-building-o icon-input" style="display: none;cursor:pointer" title="保存"></span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6" >
+                                    <div class="group-icon">
+                                        <input id="displaynameinputvalue" type="text" class="form-control" onkeyup="value=value.replace(' ','')">
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-sm-5">
+                                    <div class="group-icon" >
+                                        <input type="text" class="form-control"  style="border:0px;background:none;"   value="身份认证" readonly="readonly">
+                                        <span id="hasoutspanchange"  onclick="changemailgrouphasoutvalue()" class="fa fa-edit icon-input" style="display: block;cursor:pointer" title="修改"></span>
+                                        <span id="hasoutspansave" onclick="savemailgrouphasoutvalue()" class="fa fa-building-o icon-input" style="display: none;cursor:pointer" title="保存"></span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input id="mySwitch11" type="checkbox"  >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-5">
+                                    <div class="group-icon" >
+                                        <input type="text" class="form-control"  style="border:0px;background:none;"   value="管理者" readonly="readonly">
+
+                                        <span id="managerspanchange"  onclick="changemailgroupmanagervalue()" class="fa fa-edit icon-input" style="display: block;cursor:pointer" title="修改"></span>
+                                        <span id="managerspansave" onclick="savemailgroupamanagerhangevalue()" class="fa fa-building-o icon-input" style="display: none;cursor:pointer" title="保存"></span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6" >
+                                    <div class="group-icon">
+                                        <input id="managerinputvalue" type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="text-center">
+                            <p>
+                                <a class="pull-right" data-dismiss="modal">关闭</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block custom_js %}
+    <script src="/static/js/bootstrap-table.min.js"></script>
+    <script src="/static/js/bootstrap-table-zh-CN.min.js"></script>
+    <script src="/static/switch/bootstrap-switch.min.js"></script>
+    <script src="/static/sweetalert/sweetalert.min.js"></script>
+
+
+    <script>
+
+        {#    $('#mySwitch11').on('switchChange.bootstrapSwitch', function (event,state) {#}
+        {#                alert(state);#}
+        {#            });#}
+        $('#mySwitch11').bootstrapSwitch({
+            onText:'开',
+            offText:'关'});
+        function changemailgroupdisplanamevalue() {
+            document.getElementById('displaynameinputvalue').readOnly=false;
+            document.getElementById('displaynamespanchange').style.display="none";
+            document.getElementById('displaynamespansave').style.display="block";
+            document.getElementById('displaynameinputvalue').style.border="1px solid #555";
+            document.getElementById('displaynameinputvalue').style.backgroundColor="#FFFFFF";
+        }
+        function changemailgroupmanagervalue() {
+            document.getElementById('managerinputvalue').readOnly=false;
+            document.getElementById('managerspanchange').style.display="none";
+            document.getElementById('managerspansave').style.display="block";
+            document.getElementById('managerinputvalue').style.border="1px solid #555";
+            document.getElementById('managerinputvalue').style.backgroundColor="#FFFFFF";
+        }
+        function changemailgrouphasoutvalue() {
+            document.getElementById('hasoutspanchange').style.display="none";
+            document.getElementById('hasoutspansave').style.display="block";
+            $('#mySwitch11').bootstrapSwitch('readonly', false);
+
+        }
+        function Initializationchange() {
+            document.getElementById('displaynameinputvalue').style.backgroundColor="transparent";
+            document.getElementById('displaynameinputvalue').readOnly=true;
+            document.getElementById('displaynameinputvalue').style.border="0px";
+            document.getElementById('managerinputvalue').style.backgroundColor="transparent";
+            document.getElementById('managerinputvalue').readOnly=true;
+            document.getElementById('managerinputvalue').style.border="0px";
+            document.getElementById('displaynamespanchange').style.display="none";
+            document.getElementById('displaynamespansave').style.display="none";
+            document.getElementById('hasoutspansave').style.display="none";
+            document.getElementById('hasoutspanchange').style.display="none";
+            document.getElementById('managerspanchange').style.display="none";
+            document.getElementById('managerspansave').style.display="none";
+            $('#mySwitch11').bootstrapSwitch('readonly', false);
+            document.getElementById('displaynameinputvalue').value  = "";
+            document.getElementById('mailgroupemailvalue').value  = "";
+            document.getElementById('groupsamaccountvalue').value  = "";
+            document.getElementById('managerinputvalue').value  = "";
+        }
+
+        $ (function () {
+            $.ajax({
+                url: {% url "showmailgroup" %},
+                type: 'POST',
+                dataType: 'json',
+                success: function (data) {
+                    $('#tables').bootstrapTable('load',data['rows']);
+                }
+            });
+
+        });
+
+{#        $("#tables").bootstrapTable({#}
+{#            url: '{% url "showmailgroup" %}',#}
+{#            sidePagination: "client",//#}
+{#            dataType: "json",#}
+{#            onlyInfoPagination:true,#}
+{#            method: "GET",#}
+{#            pagination: true, //在表格底部显示分页工具栏#}
+{#            pageSize: 4,#}
+{#            columns: [{#}
+{#                field: 'mail',#}
+{#                title: '邮箱地址'#}
+{#            },  {#}
+{#                title: '显示名称',#}
+{#                field: 'displayname'#}
+{#            },  {#}
+{#                title: '操作',#}
+{#                field: 'samaccountname',#}
+{#                formatter : function(value,#}
+{#                                     row, index) {#}
+{#                    var c = '<a class="green-color" href="/managershowmailgroup?groupname='+row.samaccountname +'" >查看</a> ';#}
+{#                    var e = '<a href="#"  onclick="changeAttributes(\''+row["samaccountname"]+'\')" style="margin:5px;">编辑</a>';#}
+{#                    var d = '<a class="red-color" href="#"  onclick="delmailgroup(\''#}
+{#                            + row.samaccountname#}
+{#                            + '\')">删除</a> ';#}
+{#                    return c + e + d ;#}
+{#                }#}
+{##}
+{#            }#}
+{#            ],#}
+{#            formatLoadingMessage: function () {#}
+{#                return "请稍等，正在加载中...";#}
+{#            },#}
+{#            formatNoMatches: function () {  //没有匹配的结果#}
+{#                return '您貌似不是任何群组的管理者';#}
+{#            },#}
+{#            striped:true#}
+{#        });#}
+
+        $(function () {
+
+            //1.初始化Table
+            var oTable = new TableInit();
+            oTable.Init();
+        });
+        var TableInit = function () {
+            var oTableInit = new Object();
+            //初始化Table
+            oTableInit.Init = function () {
+                $('#tables').bootstrapTable({
+
+                    strictSearch: false,                //服务器搜索
+                    pagination: true,                   //是否显示分页（*）
+                    sortable: false,                     //是否启用排序
+                    sortOrder: "asc",                   //排序方式
+                    queryParams: oTableInit.queryParams,//传递参数（*）
+                    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber:1,                       //初始化加载第一页，默认第一页
+                    pageSize: 10,                       //每页的记录行数（*）
+                    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                    search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                    minimumCountColumns: 2,             //最少允许的列数
+                    columns: [{
+                field: 'mail',
+                title: '邮箱地址'
+            },  {
+                title: '显示名称',
+                field: 'displayname',
+                formatter : function(value,
+                                     row, index) {
+                    return fixXss(row.displayname);
+                }
+            },  {
+                title: '操作',
+                field: 'samaccountname',
+                formatter : function(value,
+                                     row, index) {
+                    var c = '<a class="green-color" href="/managershowmailgroup?groupname='+row.samaccountname +'" >查看</a> ';
+                    var e = '<a href="#"  onclick="changeAttributes(\''+row["samaccountname"]+'\')" style="margin:5px;">编辑</a>';
+                    var d = '<a class="red-color" href="#"  onclick="delmailgroup(\''
+                            + row.samaccountname
+                            + '\')">删除</a> ';
+                    return c + e + d ;
+                }
+
+            }
+            ],
+            formatLoadingMessage: function () {
+                return "请稍等，正在加载中...";
+            },
+            formatNoMatches: function () {  //没有匹配的结果
+                return '您貌似不是任何群组的管理者';
+            },
+            striped:true
+                });
+            };
+            //得到查询的参数
+            oTableInit.queryParams = function (params) {
+                var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                    limit: params.limit,   //页面大小
+                    offset: params.offset,  //页码
+                    departmentname: $("#txt_search_departmentname").val(),
+                    statu: $("#txt_search_statu").val()
+                };
+                return temp;
+            };
+            return oTableInit;
+        };
+
+
+
+        function changeAttributes(groupnamevalue) {
+            Initializationchange();
+            $.ajax({
+                url: {% url "getmailgroupvalue" %},
+                type: 'POST',
+                dataType: 'json',
+                data: {'groupname': groupnamevalue},
+                async: true,
+                success: function (data) {
+                    document.getElementById('displaynameinputvalue').value  = fixXss(data['displayname']);
+                    document.getElementById('mailgroupemailvalue').value  = data['mail'];
+                    document.getElementById('groupsamaccountvalue').value  = data['sAMAccountName'];
+                    document.getElementById('managerinputvalue').value  = fixXss(data['managerusername']);
+                    if (data['RequireSenderAuthenticationEnabled']){
+                        $('#mySwitch11').bootstrapSwitch('state', true);
+                        $('#mySwitch11').bootstrapSwitch('readonly', true);
+                        document.getElementById('displaynamespanchange').style.display="block";
+                        document.getElementById('hasoutspanchange').style.display="block";
+                        document.getElementById('managerspanchange').style.display="block";
+                    }
+                    else {
+                        $('#mySwitch11').bootstrapSwitch('state', false);
+                        $('#mySwitch11').bootstrapSwitch('readonly', true);
+                        document.getElementById('displaynamespanchange').style.display="block";
+                        document.getElementById('hasoutspanchange').style.display="block";
+                        document.getElementById('managerspanchange').style.display="block";
+                    }
+                }
+            });
+            $('#myModal5').modal({
+                keyboard: true,
+                backdrop:true
+            });
+
+        }
+        function savemailgroupadisplaynamevhangevalue() {
+            var groupdisplaynamevalue = document.getElementById('displaynameinputvalue').value;
+            var groupemailvalue = document.getElementById('mailgroupemailvalue').value;
+            var groupsamaccountvalues = document.getElementById('groupsamaccountvalue').value;
+            $.ajax({
+                url: {% url "changemailgroupdisplaynamevalue" %},
+                type: 'POST',
+                dataType: 'json',
+                data: {'groupemailvalue': groupemailvalue,'groupdisplaynamevalue':groupdisplaynamevalue,'groupsamaccountvalues':groupsamaccountvalues},
+                async: true,
+                success: function (data) {
+                    if(data['isSuccess']){
+                        swal({
+                            title: "修改成功",
+                            type: "success",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                        document.getElementById('displaynameinputvalue').style.backgroundColor="transparent";
+                        document.getElementById('displaynameinputvalue').readOnly=true;
+                        document.getElementById('displaynameinputvalue').style.border="0px";
+                        document.getElementById('displaynamespanchange').style.display="block";
+                        document.getElementById('displaynamespansave').style.display="none";
+                    }
+                    else {
+                        swal({
+                            title: "修改失败",
+                            text: data['message'],
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                    }
+                }
+            });
+
+        }
+        function savemailgroupamanagerhangevalue() {
+            var managerinputvalue = document.getElementById('managerinputvalue').value;
+            var groupemailvalue = document.getElementById('mailgroupemailvalue').value;
+            var groupsamaccountvalues = document.getElementById('groupsamaccountvalue').value;
+
+            $.ajax({
+                url: {% url "changemailgroupamanagerhangevalue" %},
+                type: 'POST',
+                dataType: 'json',
+                data: {'groupemailvalue': groupemailvalue,'managerinputvalue':managerinputvalue,'groupsamaccountvalues':groupsamaccountvalues},
+                async: true,
+                success: function (data) {
+                    if(data['isSuccess']){
+                        swal({
+                            title: "修改成功",
+                            type: "success",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                        document.getElementById('managerinputvalue').style.backgroundColor="transparent";
+                        document.getElementById('managerinputvalue').readOnly=true;
+                        document.getElementById('managerinputvalue').style.border="0px";
+                        document.getElementById('managerspanchange').style.display="block";
+                        document.getElementById('managerspansave').style.display="none";
+                    }
+                    else {
+                        swal({
+                            title: "修改失败",
+                            text: data['message'],
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                    }
+                }
+            });
+
+        }
+        function savemailgrouphasoutvalue() {
+            var groupemailvalue = document.getElementById('mailgroupemailvalue').value;
+            var groupsamaccountvalues = document.getElementById('groupsamaccountvalue').value;
+            var mailgroupissendvalue =  $('#mySwitch11').bootstrapSwitch('state');
+            $.ajax({
+                url: {% url "changemailgrouphasoutvalue" %},
+                type: 'POST',
+                dataType: 'json',
+                data: {'groupemailvalue': groupemailvalue,'mailgroupissendvalue':mailgroupissendvalue,'groupsamaccountvalues':groupsamaccountvalues},
+                async: true,
+                success: function (data) {
+                    if(data['isSuccess']){
+                        swal({
+                            title: "修改成功",
+                            type: "success",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+
+                        document.getElementById('hasoutspanchange').style.display="block";
+                        document.getElementById('hasoutspansave').style.display="none";
+                        $('#mySwitch11').bootstrapSwitch('readonly', true);
+                    }
+                    else {
+                        swal({
+                            title: "修改失败",
+                            text: data['message'],
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                    }
+                }
+            });
+        }
+        function delmailgroup(groupnamevalue) {
+
+
+            swal({
+                        title: '确定删除“'+groupnamevalue+'”群组吗',
+                        type: "warning",
+                        showCancelButton: true,
+                        closeOnConfirm: false,
+                        showLoaderOnConfirm: true,
+                        confirmButtonText: "确定删除",
+                        cancelButtonText: "我在想想"
+                    }
+                    , function () {
+                        $.ajax({
+                            url: {% url "delmailgroup" %},
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {'groupname': groupnamevalue},
+                            async: false,
+                            success: function (data) {
+                                if(data['isSuccess']){
+                                    swal({
+                                        title: "删除成功",
+                                        type: "success",
+                                        showCancelButton: false,
+                                        closeOnConfirm: false
+                                    },function(){location.reload()});
+                                }
+                                else {
+                                    swal({
+                                        title: "删除失败",
+                                        text: data['message'],
+                                        type: "error",
+                                        showCancelButton: false,
+                                        closeOnConfirm: false
+                                    });
+                                }
+                            }
+                        });
+                    }
+            );
+        }
+    </script>
+
+{% endblock %}
+

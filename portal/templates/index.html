@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% block title %}<title id="titlehtml"></title>{% endblock %}
+
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/simple-line-icons.css" rel="stylesheet">
+    <link href="/static/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/nanoscroller.css">
+    <link href="/static/css/style.css" rel="stylesheet">
+    <link href="/static/sweetalert/sweetalert.css" rel="stylesheet">
+
+    {% block custom_css %}
+        {#        <link href="/static/css/style.min862f.css?v=4.1.0" rel="stylesheet">#}
+    {% endblock %}
+</head>
+<body>
+
+<!--top bar start-->
+<div class="top-bar light-top-bar"><!--by default top bar is dark, add .light-top-bar class to make it light-->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-6">
+                <a href="/portal/" class="admin-logo">
+                    <span id="titlehtml" style="font-size: 25px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;text-align: center"></span>
+                </a>
+                <div class="left-nav-toggle visible-xs visible-sm">
+                    <a href="">
+                        <i class="glyphicon glyphicon-menu-hamburger"></i>
+                    </a>
+                </div><!--end nav toggle icon-->
+            </div>
+            <div class="col-xs-6">
+                <ul class="list-inline top-right-nav">
+                    <li class="dropdown avtar-dropdown">
+                        <a class="btn" target="_blank" >{{ request.session.displayname}}  </a>
+                    </li>
+                    <li>
+                        <a href="/logout/">
+                            注销
+                            <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- top bar end-->
+
+<!--left navigation start-->
+<aside class="float-navigation light-navigation">
+    <div class="nano">
+        <div class="nano-content">
+            <ul class="metisMenu nav" id="menu">
+                <li id="personalcenter">
+                    <a href="javascript: void(0);" aria-expanded="true"><i class="icon-users"></i>个人中心<span class="fa arrow"></span></a>
+                    <ul class="nav-second-level nav" aria-expanded="true">
+                        <li><a href="/changepwd/">密码修改</a></li>
+                        <li><a href="/resetpwd/">密码重置</a></li>
+                        <li><a href="/mailgroupmanagement/">邮箱群组管理</a></li>
+                        <li><a href="/review/">我的审批</a></li>
+                        <li><a href="/referuser/">我的申请</a></li>
+                        <li><a href="/publicmailmanagement/">公共邮箱管理</a></li>
+                    </ul>
+                </li>
+                <li id="approval_li">
+                    <a href="javascript: void(0);" aria-expanded="true"><i class="icon-users"></i>审批中心 &nbsp;<span class="fa arrow"></span>&nbsp;<span id="approval_li_count" style="display: none" class="badge badge-danger"></span></a>
+                    <ul class="nav-second-level nav" aria-expanded="true">
+                        <li><a href="/referuser/">我的申请</a></li>
+                        <li><a href="/refer/">文件权限申请</a></li>
+                        <li><a href="/review/">我的审批 &nbsp;  <span id="review_count" style="display: none" class="badge badge-danger"></span></a></li>
+                        <li id = 'approval' style="display: none"><a href="/approval/">文件权限审批 &nbsp;&nbsp;<span id="approval_count"  class="badge badge-danger"></span></a>
+                        </li>
+                        <li id = 'relationapproval' style="display: none"><a href="/relationapproval/">文件管理员审批 &nbsp;&nbsp;<span class="badge badge-danger" id="relationapproval_count"></span></a>
+                        </li>
+                    </ul>
+                </li>
+                {#                <li class="nav-heading"><span>tools</span></li>#}
+                <li id="ittool">
+                    <a href="javascript: void(0);" aria-expanded="true"><i class="icon-settings"></i> IT工具 <span class="fa arrow"></span></a>
+                    <ul class="nav-second-level nav" aria-expanded="true">
+                        <li><a href="/userquery/">用户信息查询</a></li>
+                        <li><a href="/userunlock/" id="userunlockd" style="display: none">账号解锁</a></li>
+                        <li><a href="/addPwdNoLock/" id="addPwdNoLockd" style="display: none">账号防锁定</a></li>
+                        <li><a href="/adresetpwd/" id="adresetpwd" style="display: none">重置密码</a></li>
+
+
+                    </ul>
+                </li>
+                {#                <li class="nav-heading"><span>jzaccount</span></li>#}
+                <li id="jzaccount">
+                    <a href="javascript: void(0);" aria-expanded="true"><i class="fa fa-desktop"></i> 兼职账号 <span class="fa arrow"></span></a>
+                    <ul class="nav-second-level nav" aria-expanded="true">
+                        <li ><a href="/jzaccountapp/" style="display: none" id = "sqhtml">账号申请</a></li>
+                        <li ><a href="/Effectiveaccount/" id = "glhtml" style="display: none" >有效账号管理</a></li>
+                        {#                        <li><a href="/AccountManagement/">管理员后台 <span id="jzadminhtml" style="white-space:nowrap;display: none">（无权限）</span></a></li>#}
+                        <li ><a href="/AccountManagement/" id="jzadminhtml" style="display: none">管理员后台 </a></li>
+                        <li ><a href="/AccountAddManagement/" id="addadminhtml" style="display: none">申请权限管理 </a></li>
+                    </ul>
+                </li>
+                {#                <li class="nav-heading"><span>internet</span></li>#}
+                <li id="networkli">
+                    <a href="javascript: void(0);" aria-expanded="true"><i class="fa fa-wifi"></i> 网络权限 <span class="fa arrow"></span></a>
+                    <ul class="nav-second-level nav" aria-expanded="true">
+                        <li ><a href="/access/" >网络权限申请</a></li>
+                    </ul>
+                </li>
+
+                {#                <li class="nav-heading"><span>Mail</span></li>#}
+                <li id="mailli" >
+                    <a href="javascript: void(0);" aria-expanded="true"><i class="icon-envelope"></i> 邮箱 <span class="fa arrow"></span></a>
+                    <ul class="nav-second-level nav collapse " aria-expanded="true">
+                        <li><a href="/applypublicmail/">公共邮箱申请</a></li>
+                        <li><a href="/applymailpermission/">申请邮箱群组权限</a></li>
+                        <li><a href="/applymailgroup/">邮箱群组申请</a></li>
+                        <li><a href="/unlockmail/">手机邮箱解锁</a></li>
+                        <li><a href="/findmail/">邮箱查询</a></li>
+                    </ul>
+                </li>
+                {#                <li class="nav-heading"><span>DFS</span></li>#}
+                <li id="dfsli" style="display: none">
+                    <a href="javascript: void(0);" aria-expanded="true"><i class="icon-folder"></i> 文件夹权限 <span class="fa arrow"></span></a>
+                    <ul class="nav-second-level nav" aria-expanded="true">
+                        <li><a href="/dfsapply/">文件夹权限申请</a></li>
+                        <li><a href="/dfsapplys/">多人文件夹权限申请</a></li>
+{#                        <li><a href="/refer/">申请进度查看</a></li>#}
+                        <li><a href="/mydfs/">我的文件夹权限</a></li>
+{#                        <li id = 'approval' style="display: none"><a href="/approval/">主管审批 &nbsp;&nbsp;<span id="approval_count" class="badge badge-danger"></span></a>#}
+{#                        </li>#}
+{#                        <li id = 'relationapproval' style="display: none"><a href="/relationapproval/">文件夹管理员审批 &nbsp;&nbsp;<span class="badge badge-danger" id="relationapproval_count"></span></a>#}
+{#                        </li>#}
+                    </ul>
+
+                </li>
+                <li id = 'file_dfs_li' style="display: none" >
+                    <a href="javascript: void(0);" aria-expanded="true" name="file_dfs_li"><i class="fa fa-book"></i> 文件管理员 <span class="fa arrow"></span></a>
+                    <ul class="nav-second-level nav" aria-expanded="true">
+                        <li><a href="/relationmanager/">文件夹权限管理</a></li>
+                        <li id="relationconfig" style="display: none"><a href="/relationconfig/">修改文件夹管理员</a></li>
+                        <li><a href="/addfolderpage/">新建文件夹</a></li>
+                        <li><a href="/delfolderpage/">删除文件夹</a></li>
+                        <li><a href="/renamefolderpage/">重命名文件夹</a></li>
+                        <li><a href="/folderapilog/">文件夹操作日志</a></li>
+                        <li><a href="/flowlog/">流程日志</a></li>
+                    </ul>
+                </li>
+
+                <!--<li><a href="landing/index.html" target="_blank" class="bg-primary"><i class="icon-star"></i>Landing page</a></li>-->
+
+                {#                <li class="nav-heading" id="systemlogbigli" style="display: none"><span>system</span></li>#}
+                <li id="systemlogli" style="display: none">
+                    <a href="javascript: void(0);" aria-expanded="true" ><i class="icon-pencil"></i> 日志 <span class="fa arrow"></span></a>
+                    <ul class="nav-second-level nav" aria-expanded="true">
+                        <li><a href="/systemlog/">系统日志</a></li>
+                    </ul>
+
+                </li>
+            </ul>
+        </div><!--nano content-->
+    </div><!--nano scroll end-->
+</aside>
+<!--left navigation end-->
+<section class="main-content">
+    {% block content %}
+        <div style="background-color: white;">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="panel panel-primary price-box" style="height:548px">
+                    <div class="widget bg-primary padding-0">
+                        <div class="row row-table">
+                            <div class="col-xs-4 text-center pv-15 bg-light-dark">
+                                <em class="icon-users fa-3x"></em>
+                            </div>
+                            <div class="col-xs-8 pv-15 text-center">
+                                <h2 class="mv-0">基本信息</h2>
+                            </div>
+                        </div>
+                    </div><!--end widget-->
+                    <div class="panel-body">
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                <th>姓名</th>
+                                <td id="displaynamevalueshow"></td>
+                            </tr>
+                            <tr>
+                                <th>邮箱地址</th>
+                                <td id="mailaddressvalueshow"></td>
+                            </tr>
+                            <tr>
+                                <th>当前IP地址</th>
+                                <td id="thisipvalueshow"></td>
+                            </tr>
+                            <tr>
+                                <th>AD密码过期</th>
+                                <td id="adpasswordlasttimevalueshow"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div><!--end panel-->
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-primary price-box" style="height:548px">
+                    <div class="widget bg-primary padding-0">
+                        <div class="row row-table">
+                            <div class="col-xs-4 text-center pv-15 bg-light-dark">
+                                <em class="icon-envelope fa-3x"></em>
+                            </div>
+                            <div class="col-xs-8 pv-15 text-center">
+                                <h2 class="mv-0">邮箱信息</h2>
+                            </div>
+                        </div>
+                    </div><!--end widget-->
+                    <div class="panel-body">
+                        <table class="table" id="maillisttables">
+                        </table>
+                    </div>
+                </div><!--end panel-->
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-primary price-box" style="height:548px">
+                    <div class="widget bg-primary padding-0">
+                        <div class="row row-table">
+                            <div class="col-xs-4 text-center pv-15 bg-light-dark">
+                                <em class="icon-globe fa-3x"></em>
+                            </div>
+                            <div class="col-xs-8 pv-15 text-center">
+                                <h2 class="mv-0">网络信息</h2>
+                            </div>
+                        </div>
+                    </div><!--end widget-->
+                    <div class="panel-body">
+                        <table class="table" id="internetlisttable">
+                        </table>
+                    </div>
+                </div><!--end panel-->
+            </div>
+        </div>
+    {% endblock %}
+
+    </div>
+
+
+</section>
+
+<!--main content start-->
+
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/jquery.slimscroll.min.js"></script>
+<script src="/static/js/jquery.nanoscroller.min.js"></script>
+<script src="/static/js/metismenu.min.js"></script>
+<script src="/static/js/float-custom.js"></script>
+<script src="/static/sweetalert/sweetalert.min.js"></script>
+<script src="/static/js/fixXss.js"></script>
+<script>
+
+
+
+    $(function(){
+        var pathname = window.location.pathname;
+        if ("/changepwd/" == pathname || "/resetpwd/" == pathname ||"/mailgroupmanagement/" == pathname ||"/publicmailmanagement/" == pathname ||"/managershowmailgroup/" == pathname ||"/managershowsendtomailgroup/" == pathname) {
+            $('#personalcenter').addClass("active");
+            $('#personalcenter').find('ul').addClass("in ");
+        }
+        else if ("/userquery/" == pathname ||"/userunlock/" == pathname ||"/addPwdNoLock/" == pathname ||"/adresetpwd/" == pathname){
+            $('#ittool').addClass("active");
+            $('#ittool').find('ul').addClass("in ");
+        }
+        else if ("/jzaccountapp/" == pathname ||"/Effectiveaccount/" == pathname ||"/AccountManagement/" == pathname||"/AccountAddManagement/" == pathname){
+            $('#jzaccount').addClass("active");
+            $('#jzaccount').find('ul').addClass("in ");
+        }
+        else if ("/applypublicmail/" == pathname ||"/applymailpermission/" == pathname ||"/applymailgroup/" == pathname ||"/unlockmail/" == pathname ||"/findmail/" == pathname){
+            $('#mailli').addClass("active");
+            $('#mailli').find('ul').addClass("in ");
+        }
+        else if ("/dfsapply/" == pathname ||"/dfsapplys/" == pathname ||"/mydfs/" == pathname){
+            $('#dfsli').addClass("active");
+            $('#dfsli').find('ul').addClass("in ");
+        }
+        else if ("/relationmanager/" == pathname ||"/relationconfig/" == pathname ||"/addfolderpage/" == pathname ||"/delfolderpage/" == pathname ||"/renamefolderpage/" == pathname||"/folderapilog/" == pathname ||"/flowlog/" == pathname){
+            $('#file_dfs_li').addClass("active");
+            $('#file_dfs_li').find('ul').addClass("in ");
+        }
+        else if ("/access/" == pathname){
+            $('#networkli').addClass("active");
+            $('#networkli').find('ul').addClass("in ");
+        }
+        else if ("/systemlog/" == pathname){
+            $('#systemlogli').addClass("active");
+            $('#systemlogli').find('ul').addClass("in ");
+        }
+        else if ("/review/" == pathname||"/referuser/" == pathname||"/refer/" == pathname||"/approval/" == pathname||"/relationapproval/" == pathname){
+            $('#approval_li').addClass("active");
+            $('#approval_li').find('ul').addClass("in ");
+        }
+        {#div.setAttribute("class", "active");#}
+        var app_director_count = 0;
+        var app_relation_count= 0;
+        var review_count=0;
+        $.ajax({
+            url:{% url "dfs_permission" %},
+            type:'POST',
+            dataType:'json',
+            async:false,
+            {#                        data:{'app_level1_path_list':JSON.stringify(app_level1_path_list)},#}
+            success:function(data){
+                if (data['dfs_switch'] !="1"){
+                    document.getElementById("dfsli").style.display = "list-item";
+                    if(data['dfs_manager']==true){
+                        document.getElementById("file_dfs_li").style.display = "list-item";
+                        document.getElementById("relationconfig").style.display = "list-item";
+                    }
+                    if(data['file_manager'] !=""){
+                        document.getElementById("file_dfs_li").style.display = "list-item";
+                    }
+                }
+                if (data['app_director_count'] !=0){
+                    document.getElementById("approval").style.display = "list-item";
+                    $("#approval_count").html(data['app_director_count']);
+                    app_director_count = Number(data['app_director_count']);
+                }
+                if(data['app_relation_count'] !=0){
+                    document.getElementById("relationapproval").style.display = "list-item";
+                    $("#relationapproval_count").html(data['app_relation_count']);
+                    app_relation_count = Number(data['app_relation_count']);
+                }
+            }
+        });
+        $.ajax({
+            url:{% url "showcountman" %},
+            type:'POST',
+            dataType:'json',
+            async:false,
+            success: function (data) {
+                if (data['status']!=0){
+                    document.getElementById("review_count").style.display = "inline";
+                    $("#review_count").html(data['status']);
+                    review_count = Number(data['status']);
+                }
+            }
+        });
+        var approval_li_count = review_count +app_relation_count+app_director_count;
+        if (approval_li_count != 0){
+            document.getElementById("approval_li_count").style.display = "inline";
+            $("#approval_li_count").html(approval_li_count);
+        }
+        $.ajax({
+            url:{% url "systemlog_permission" %},
+            type:'POST',
+            dataType:'json',
+            success:function(data){
+                if (data){
+                    document.getElementById("systemlogli").style.display = "list-item";
+                }
+            }
+        });
+    });
+
+
+
+    $ (function () {
+        $.ajax({
+            url:{% url "jzhtml" %},
+            type:'POST',
+            dataType:'json',
+            success:function (data) {
+                if(data['result']==2){
+                    document.getElementById('sqhtml').style.display  = "none";
+                    document.getElementById('glhtml').style.display  = "none";
+                }
+                else {
+                    document.getElementById('sqhtml').style.display  = "list-item";
+                    document.getElementById('glhtml').style.display  = "list-item";
+                }
+            }
+        });
+        $.ajax({
+            url:{% url "IFadmin" %},
+            type:'POST',
+            dataType:'json',
+            success:function (data) {
+                if(data['result']== 2){
+                    document.getElementById('jzadminhtml').style.display  = "none";
+                    document.getElementById('userunlockd').style.display  = "none";
+                    document.getElementById('addPwdNoLockd').style.display  = "none";
+                    document.getElementById('addadminhtml').style.display  = "none";
+                    document.getElementById('adresetpwd').style.display  = "none";
+                }
+                else {
+                    document.getElementById('jzadminhtml').style.display  = "list-item";
+                    document.getElementById('userunlockd').style.display  = "list-item";
+                    document.getElementById('addPwdNoLockd').style.display  = "list-item";
+                    document.getElementById('addadminhtml').style.display  = "list-item";
+                    document.getElementById('adresetpwd').style.display  = "list-item";
+                }
+            }
+        })
+
+    });
+
+    $(function(){
+        var pathname = window.location.pathname;
+        if ("/index/" == pathname){
+            $.ajax({
+                url:{% url "userindexvalueshow" %},
+                type:'POST',
+                dataType:'json',
+                success:function (data) {
+                    if (data['isSuccess']){
+                        document.getElementById("displaynamevalueshow").innerHTML = data['message']['userdisplayname'];
+                        document.getElementById("mailaddressvalueshow").innerHTML = data['message']['usermail'];
+                        document.getElementById("thisipvalueshow").innerHTML = data['message']['ip'];
+                        document.getElementById("adpasswordlasttimevalueshow").innerHTML = data['message']['PasswordExpirationDate'];
+                        for(var i=0;i<data['message']['usermaillist'].length;i++)
+                        {
+                            var newRow  = "<tr><th>"+data['message']['usermaillist'][i]['displayname']+"</th><td>"+data['message']['usermaillist'][i]['mail']+"</td></tr>";
+                            $("#maillisttables").append(newRow);
+                        }
+                        for(var vpn=0;vpn<data['message']['uservpnlist'].length;vpn++)
+                        {
+                            var newRowvpn  = "<tr><th>VPN权限</th><td>"+data['message']['uservpnlist'][vpn]+"</td></tr>";
+                            $("#internetlisttable").append(newRowvpn);
+                        }
+                        for(var inter=0;inter<data['message']['userinternetlist'].length;inter++)
+                        {
+                            var newRowinter  = "<tr><th>网络权限</th><td>"+data['message']['userinternetlist'][inter]+"</td></tr>";
+                            $("#internetlisttable").append(newRowinter);
+                        }
+                        for(var wifilen=0;wifilen<data['message']['userwifilist'].length;wifilen++)
+                        {
+                            var newRowwifi = "<tr><th>无线权限</th><td>"+data['message']['userwifilist'][wifilen]+"</td></tr>";
+                            $("#internetlisttable").append(newRowwifi);
+                        }
+                    }
+                    else {
+                        document.getElementById("displaynamevalueshow").innerHTML = "暂未获取到信息";
+                        document.getElementById("mailaddressvalueshow").innerHTML = "暂未获取到信息";
+                        document.getElementById("thisipvalueshow").innerHTML = "暂未获取到信息";
+                        document.getElementById("adpasswordlasttimevalueshow").innerHTML = "暂未获取到信息";
+                        var newRow  = "<tr><th>暂未获取到信息</th></tr>";
+                        $("#maillisttables").append(newRow);
+                        var newRowvpn  = "<tr><th>暂未获取到信息</th></tr>";
+                        $("#internetlisttable").append(newRowvpn);
+
+                    }
+                }});
+        }});
+
+
+    $.ajax({
+
+                url:{% url "showtitle" %},
+                type:'POST',
+                dataType:'json',
+                success:function (data) {
+                    document.getElementById("titlehtml").innerHTML = data['status']
+                }
+        });
+
+
+</script>
+{% block custom_js %}
+
+{% endblock %}
+</body>
+</html>

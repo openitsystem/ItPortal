@@ -1,0 +1,377 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    <title>邮箱群组管理</title>
+{% endblock %}
+
+{% block custom_css %}
+    <!--template css-->
+    <link rel="stylesheet" href="/static/css/bootstrap-table.min.css">
+    <link href="/static/sweetalert/sweetalert.css" rel="stylesheet">
+{% endblock %}
+
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="accordion1" class="panel-group accordion">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span aria-hidden="true" class="icon-screen-smartphone"></span>
+                        {{ groupdisplayname }}发件人权限列表<span id="membercount"></span>人
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in " >
+                        <div class="panel-body">
+                             <div class="input-group date" style="width:10%;" >
+                                <input type="text" class="form-control" id="findmailchange">
+                                <span class="input-group-addon">
+                                    <span class="fa fa-search">
+                                    </span>
+                                </span>
+                            </div>
+
+                            </div>
+                         <div class="panel-body">
+
+                                 <div class="panel-heading">
+                                     <button id="maisendbutton" class="btn btn-default btn-rounded" onclick="chrefmail()">点击查看收件人权限</button>
+                                <button class="btn btn-default btn-rounded" onclick="addgroupsendtomember()">添加发件人权限</button>
+                                <button class="btn btn-default btn-rounded" onclick="removeallsendtogroupmember()">清空发件人权限</button>
+                                 </div>
+                            <table class="table" id="tables">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal inmodal fade" id="myModal5" tabindex="-1" role="dialog"  aria-hidden="true" style="margin-top: 50px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="fa fa-times-circle"></span></button>
+                    <h3 class="modal-title" id="myModalLabel"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">发件人权限添加</font></font></h3><input id="groupsamaccountvalue" style="display: none">
+                </div>
+                <div class="modal-body" style="overflow:hidden">
+                    <div class="modal-form">
+                        <label class="col-md-4 control-label">添加域（AD）账户</label>
+                        <input class="form-control" id="adduserlist" name="setattribute" placeholder="多个账号，请用换行" readonly="readonly" style="width: 50%;border:0px">
+                        <textarea class="form-control" rows="5" id="groupmembers" placeholder="all&#10;test&#10;XXXXX" onkeyup="value=value.replace(' ','')"></textarea>
+                        <span id="membersnull" class="help-block" style="display:none;color:#e73d4a">成员不能为空×</span>
+                        <hr>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center">
+                            <p>
+                                <a class="pull-right"  data-dismiss="modal"  href="#" style="margin-left: 5%">关闭</a>
+                                <a class="pull-right" href="#" onclick="addgroupmembers()">添加</a>
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block custom_js %}
+    <script src="/static/js/bootstrap-table.min.js"></script>
+    <script src="/static/js/bootstrap-table-zh-CN.min.js"></script>
+    <script src="/static/sweetalert/sweetalert.min.js"></script>
+
+
+    <script>
+
+
+        function removeallsendtogroupmember() {
+               swal({
+                        title: '确定清空权限吗？',
+                        type: "warning",
+                        showCancelButton: true,
+                        closeOnConfirm: false,
+                        showLoaderOnConfirm: true,
+                        confirmButtonText: "确定删除",
+                        cancelButtonText: "我在想想"
+                    }
+                    , function () {
+                        $.ajax({
+                            url: {% url "removeallsnedtogroupmember" %},
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {'groupname': '{{ groupname }}'},
+                            async: false,
+                            success: function (data) {
+                                if(data['isSuccess']){
+                                    swal({
+                                        title: "清空成功",
+                                        type: "success",
+                                        showCancelButton: false,
+                                        closeOnConfirm: false
+                                    },function(){location.reload()});
+                                }
+                                else {
+                                    swal({
+                                        title: "清空失败",
+                                        text: data['message'],
+                                        type: "error",
+                                        showCancelButton: false,
+                                        closeOnConfirm: false
+                                    });
+                                }
+                            }})}
+
+
+            );
+        }
+
+        function addgroupmembers() {
+            var groupmembersvalue =  document.getElementById('groupmembers').value;
+            if (groupmembersvalue.replace(/[\r\n]/g,"") == ""){
+                 swal({
+                            title: "请输入要添加的成员",
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+            }
+            else {
+            $.ajax({
+                url: {% url "addgroupsendtomembers" %},
+                type: 'POST',
+                dataType: 'json',
+                data: {'groupname': '{{ groupname }}','groupmembersvalue':groupmembersvalue},
+                async: true,
+                success: function (data) {
+                    if(!data['isSuccess']){
+                        swal({
+                            title: "请输入要添加的成员",
+                            type: "error",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        });
+                    }
+                    else {
+                        if(data['message']==""){
+                            datamessage = "无";
+                        }
+                        else {
+                             datamessage = data['message'];
+                        }
+                        swal({
+                            title: "添加成功！",
+                            text:"添加失败"+data['lenerrorlist']+"人：&#10;<textarea style='height:100px'>"+datamessage+"</textarea>",
+                            type: "error",
+                            html:true,
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        }, function () {
+                            location.reload()
+                        });
+                    }
+                }
+            })
+            }
+        }
+        function addgroupsendtomember() {
+
+            $('#myModal5').modal({
+                keyboard: true,
+                backdrop:true
+            });
+        }
+
+
+
+    $("#findmailchange").bind("input propertychange",function(){
+    var storeId = document.getElementById('tables');//获取table的id标识
+    var rowsLength = storeId.rows.length;//表格总共有多少行
+    var key =document.getElementById('findmailchange').value;//获取输入框的值
+    var searchCol = 0;//要搜索的哪一列，这里是第一列，从0开始数起
+    var searchCol1 = 1;//要搜索的哪一列，这里是第一列，从0开始数起
+    var searchCol2 = 2;//要搜索的哪一列，这里是第一列，从0开始数起
+    for(var i=1;i<rowsLength;i++) {//按表的行数进行循环，本例第一行是标题，所以i=1，从第二行开始筛选（从0数起）
+        var searchText = storeId.rows[i].cells[searchCol].innerHTML;//取得table行，列的值
+        var searchText1 = storeId.rows[i].cells[searchCol1].innerHTML;//取得table行，列的值
+        var searchText2 = storeId.rows[i].cells[searchCol2].innerHTML;//取得table行，列的值
+        if (searchText.match(key)||searchText1.match(key)||searchText2.match(key)) {//用match函数进行筛选，如果input的值，即变量 key的值为空，返回的是ture，
+            storeId.rows[i].style.display = '';//显示行操作，
+        }
+        else {
+            storeId.rows[i].style.display = 'none';//隐藏行操作
+        }
+    }
+    });
+    function queryParams() {
+            var temp = {
+                groupname: '{{ groupname }}'
+            };
+            return temp;
+        }
+
+                        $ (function () {
+            $.ajax({
+                url: {% url "showmailsendtogroupmembers" %},
+                type: 'GET',
+                dataType: 'json',
+                data:{"groupname":'{{ groupname }}'},
+                success: function (data) {
+                    $('#tables').bootstrapTable('load',data['rows']);
+                }
+            });
+
+        });
+                $(function () {
+
+            //1.初始化Table
+            var oTable = new TableInit();
+            oTable.Init();
+        });
+          var TableInit = function () {
+            var oTableInit = new Object();
+            //初始化Table
+            oTableInit.Init = function () {
+                $('#tables').bootstrapTable({
+
+                    strictSearch: false,                //服务器搜索
+                    pagination: true,                   //是否显示分页（*）
+                    sortable: false,                     //是否启用排序
+                    sortOrder: "asc",                   //排序方式
+                    queryParams: oTableInit.queryParams,//传递参数（*）
+                    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber:1,                       //初始化加载第一页，默认第一页
+                    pageSize: 100,                       //每页的记录行数（*）
+                    pageList: [100, 250, 500, 1000],        //可供选择的每页的行数（*）
+                    search: false,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                    minimumCountColumns: 2,             //最少允许的列数
+columns: [{
+                field: 'PrimarySmtpAddress',
+                title: '邮箱地址'
+            },  {
+                title: '显示名称',
+                field: 'DisplayName',
+                formatter : function(value,
+                                     row, index) {
+                    return fixXss(row["DisplayName"]);
+                }
+            },  {
+                title: 'ad账号',
+                field: 'SamAccountName'
+            },  {
+                title: '操作',
+                field: 'sAMAccountName',
+                formatter : function(value,
+                                     row, index) {
+                    return  '<a class="green-color" href="#" onclick="delmailsendtomember(\''+row["PrimarySmtpAddress"]+'\')">删除</a> ';
+                }
+            }
+            ],
+            formatLoadingMessage: function () {
+                return "请稍等，正在加载中...";
+            },
+            formatNoMatches: function () {  //没有匹配的结果
+                return '此群组没有发件人权限限制';
+            },
+
+            responseHandler:function (data) {
+                var adminflag = data["total"];
+                document.getElementById("membercount").innerHTML = adminflag;
+                return data;
+            },
+            striped:true
+                });
+            };
+            //得到查询的参数
+            oTableInit.queryParams = function (params) {
+                var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                    limit: params.limit,   //页面大小
+                    offset: params.offset,  //页码
+                    departmentname: $("#txt_search_departmentname").val(),
+                    statu: $("#txt_search_statu").val()
+                };
+                return temp;
+            };
+            return oTableInit;
+        };
+
+
+
+{#    $("#tables").bootstrapTable({#}
+{#            url: '{% url "showmailsendtogroupmembers" %}',#}
+{#            sidePagination: "server",//#}
+{#            dataType: "json",#}
+{#            method: "GET",#}
+{#            onlyInfoPagination:true,#}
+{#            queryParams:queryParams,#}
+{#            undefinedText:"空",#}
+{#            pagination: true, //在表格底部显示分页工具栏#}
+{#            columns: [{#}
+{#                field: 'PrimarySmtpAddress',#}
+{#                title: '邮箱地址'#}
+{#            },  {#}
+{#                title: '显示名称',#}
+{#                field: 'DisplayName'#}
+{#            },  {#}
+{#                title: 'ad账号',#}
+{#                field: 'SamAccountName'#}
+{#            },  {#}
+{#                title: '操作',#}
+{#                field: 'sAMAccountName',#}
+{#                formatter : function(value,#}
+{#                                     row, index) {#}
+{#                    return  '<a class="green-color" href="#" onclick="delmailsendtomember(\''+row["PrimarySmtpAddress"]+'\')">删除</a> ';#}
+{#                }#}
+{#            }#}
+{#            ],#}
+{#            formatLoadingMessage: function () {#}
+{#                return "请稍等，正在加载中...";#}
+{#            },#}
+{#            formatNoMatches: function () {  //没有匹配的结果#}
+{#                return '此群组没有发件人权限限制';#}
+{#            },#}
+{##}
+{#            responseHandler:function (data) {#}
+{#                var adminflag = data["total"];#}
+{#                document.getElementById("membercount").innerHTML = adminflag;#}
+{#                return data;#}
+{#            },#}
+{#            striped:true#}
+{#        });#}
+
+
+
+        function delmailsendtomember(PrimarySmtpAddress) {
+            $.ajax({
+                url: {% url "delmailsendtomember" %},
+                type: 'POST',
+                dataType: 'json',
+                data: {'groupname': '{{ groupname }}','PrimarySmtpAddress':PrimarySmtpAddress},
+                async: false,
+                success: function (data) {
+                        swal({
+                            title: "移除提交成功",
+                            type: "success",
+                            showCancelButton: false,
+                            closeOnConfirm: false
+                        }, function () {
+                            location.reload()
+                        });
+                }
+            })
+        }
+
+    function chrefmail() {
+        self.location.href="/managershowmailgroup/?groupname={{ groupname }}"
+    }
+
+
+
+    </script>
+
+{% endblock %}
+

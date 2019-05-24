@@ -1,0 +1,661 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    <title>删除文件夹</title>
+{% endblock %}
+
+{% block custom_css %}
+    <link href="/static/css/bootstrap-select.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="/static/css/bootstrap-table.min.css">
+{% endblock %}
+
+{% block content %}
+
+    <!--page header start-->
+    <div class="page-header">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4>删除文件夹</h4>
+                    </div>
+                </div>
+            </div>
+    <!--page header end-->
+    <!--start page content-->
+    <div class="row">
+                <div class="col-sm-12">
+                    <h5 style="color: #23b7e5">删除文件夹：使用前请确认没有同事在使用要操作的文件夹 如有同事正在使用文件夹，删除文件夹在服务器上不会生效，请谨慎删除文件夹，确定好是否有备份。</h5>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                {%  if sel_account_to_groups %}
+                                    <div class="tabs">
+                                        <!-- Nav tabs -->
+                                        <ul class="list-inline tabs-nav" role="tablist">
+                                            <li role="presentation" class="active"><a href="#tab_del_folder1" aria-controls="tab_del_folder1" role="tab" data-toggle="tab">删除第一层文件夹</a></li>
+                                            <li role="presentation"><a href="#tab_del_folder2" aria-controls="tab_del_folder2" role="tab" data-toggle="tab">删除第二层文件夹</a></li>
+                                            <li role="presentation"><a href="#tab_del_folder3" aria-controls="tab_del_folder3" role="tab" data-toggle="tab">删除第三层文件夹</a></li>
+                                        </ul>
+                                        <!-- Tab panes -->
+                                        <div class="tab-content">
+                                            <div role="tabpanel" class="tab-pane active" id="tab_del_folder1">
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                        <fieldset class="jquery-Ui-fieldset">
+                                                            <form role="form" class="form-inline">
+                                                                <div class="form-group">
+                                                                    <select id="tab1_level1id" class="selectpicker" data-hide-disabled="true" data-live-search="true">
+                                                                            <option value="-1" >请选择第一级目录</option>
+                                                                             {% for level1 in level1list %}
+                                                                                <option value='{{ level1.level1_id}},{{level1.level1_path}}'>{{level1.name}}</option>
+                                                                             {% endfor %}
+                                                                    </select>
+                                                                </div>
+                                                                <button type="button" class="btn btn-primary btn-rounded btn-border btn-sm" onclick="app_folder1()"><i class="fa fa-cloud-download"></i>&nbsp添加</button>
+                                                            </form>
+                                                            </fieldset>
+                                                        </div><!--end col-->
+
+                                                    </div><!--end row-->
+                                                </div>
+
+                                                <div class="row" id="tab1_saveapply" style="display: none">
+                                                    <div class="col-md-12">
+                                                        <div class="table-responsive">
+                                                        <div class="portlet light bordered">
+                                                            <div class="portlet-body">
+                                                               <table class="table table-striped table-bordered table-hover  order-column" id="tab1_temptable">
+                                                                   <thead >
+                                                                    <tr >
+                                                                        <th>目录名称</th>
+                                                                        <th>目录路径</th>
+                                                                        <th>目录层级</th>
+                                                                        <th>操作</th>
+                                                                    </tr>
+                                                                   </thead>
+                                                                   <tbody id="tab1_showtable">
+                                                                   </tbody>
+                                                               </table>
+                                                            </div>
+                                                            <div align="center">
+                                                                <button  type="button" class="btn btn-primary btn-rounded btn-border btn-sm click" style=" width:300px;font-size: 18px;" onclick="tab1_saveapplyinfo()">提交</button>
+                                                            </div>
+                                                        </div>
+                                                            </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div role="tabpanel" class="tab-pane" id="tab_del_folder2">
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                        <fieldset class="jquery-Ui-fieldset">
+                                                            <form role="form" class="form-inline">
+                                                                <div class="form-group">
+                                                                    <select id="tab2_level1id" class="selectpicker" data-hide-disabled="true" data-live-search="true">
+                                                                            <option value="-1" >请选择第一级目录</option>
+                                                                             {% for level1 in level1list %}
+                                                                                <option value='{{ level1.level1_id}},{{level1.level1_path}}'>{{level1.name}}</option>
+                                                                             {% endfor %}
+                                                                    </select>
+                                                                    <select id="tab2_level2id" class="selectpicker" data-hide-disabled="true" data-live-search="true">
+                                                                       <option value="-1" >请选择第二级目录</option>
+                                                                    </select>
+                                                                </div>
+
+                                                                <button type="button" class="btn btn-primary btn-rounded btn-border btn-sm" onclick="app_folder2()"><i class="fa fa-cloud-download"></i>&nbsp添加</button>
+                                                            </form>
+                                                        </fieldset>
+                                                        </div><!--end col-->
+
+                                                    </div><!--end row-->
+                                                </div>
+
+                                                <div class="row" id="tab2_saveapply" style="display: none">
+                                                    <div class="col-md-12">
+                                                        <div class="table-responsive">
+                                                        <div class="portlet light bordered">
+                                                            <div class="portlet-body">
+                                                               <table class="table table-striped table-bordered table-hover  order-column" id="tab2_temptable">
+                                                                   <thead >
+                                                                    <tr >
+                                                                        <th>目录名称</th>
+                                                                        <th>目录路径</th>
+                                                                        <th>目录层级</th>
+                                                                        <th>操作</th>
+                                                                    </tr>
+                                                                   </thead>
+                                                                   <tbody id="tab2_showtable">
+                                                                   </tbody>
+                                                               </table>
+                                                            </div>
+                                                            <div align="center">
+                                                                <button  type="button" class="btn btn-primary btn-rounded btn-border btn-sm click" style=" width:300px;font-size: 18px" onclick="tab2_saveapplyinfo()">提交</button>
+                                                            </div>
+                                                        </div>
+                                                            </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div role="tabpanel" class="tab-pane" id="tab_del_folder3">
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                        <fieldset class="jquery-Ui-fieldset">
+                                                            <form role="form" class="form-inline">
+                                                                <div class="form-group">
+                                                                    <select id="tab3_level1id" class="selectpicker" data-hide-disabled="true" data-live-search="true">
+                                                                            <option value="-1" >请选择第一级目录</option>
+                                                                             {% for level1 in level1list %}
+                                                                                <option value='{{ level1.level1_id}}'>{{ level1.name}}</option>
+                                                                             {% endfor %}
+                                                                    </select>
+                                                                    <select id="tab3_level2id" class="selectpicker" data-hide-disabled="true" data-live-search="true">
+                                                                       <option value="-1" >请选择第二级目录</option>
+                                                                    </select>
+                                                                    <select id="tab3_level3id" class="selectpicker" data-hide-disabled="true" data-live-search="true">
+                                                                       <option value="-1" >请选择第三级目录</option>
+                                                                    </select>
+                                                                </div>
+                                                                <button type="button" class="btn btn-primary btn-rounded btn-border btn-sm" onclick="app_folder3()"><i class="fa fa-cloud-download"></i>&nbsp添加</button>
+                                                            </form>
+                                                            </fieldset>
+                                                        </div><!--end col-->
+
+                                                    </div><!--end row-->
+                                                </div>
+
+                                                <div class="row" id="tab3_saveapply" style="display: none">
+                                                    <div class="col-md-12">
+                                                        <div class="table-responsive">
+                                                        <div class="portlet light bordered">
+                                                            <div class="portlet-body">
+                                                               <table class="table table-striped table-bordered table-hover  order-column" id="tab3_temptable">
+                                                                   <thead >
+                                                                    <tr >
+                                                                        <th>目录名称</th>
+                                                                        <th>目录路径</th>
+                                                                        <th>目录层级</th>
+                                                                        <th>操作</th>
+                                                                    </tr>
+                                                                   </thead>
+                                                                   <tbody id="tab3_showtable">
+                                                                   </tbody>
+                                                               </table>
+                                                            </div>
+                                                            <div align="center">
+                                                                <button  type="button" class="btn btn-primary btn-rounded btn-border btn-sm click" style=" width:300px;font-size: 18px;"  onclick="tab3_saveapplyinfo()">提交</button>
+                                                            </div>
+                                                        </div>
+                                                            </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                {%  elif app_relation %}
+                                    <div class="tabs">
+                                        <!-- Nav tabs -->
+                                        <ul class="list-inline tabs-nav" role="tablist">
+                                            <li role="presentation" class="active"><a href="#tab_del_folder2" aria-controls="tab_del_folder2" role="tab" data-toggle="tab">删除第二层文件夹</a></li>
+                                            <li role="presentation"><a href="#tab_del_folder3" aria-controls="tab_del_folder3" role="tab" data-toggle="tab">删除第三层文件夹</a></li>
+                                        </ul>
+                                        <!-- Tab panes -->
+                                        <div class="tab-content">
+                                            <div role="tabpanel" class="tab-pane active" id="tab_del_folder2">
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                        <fieldset class="jquery-Ui-fieldset">
+                                                            <form role="form" class="form-inline">
+                                                                <div class="form-group">
+                                                                    <select id="tab2_level2id" class="selectpicker" data-hide-disabled="true" data-live-search="true">
+                                                                        <option value="-1" >请选择第二级目录</option>
+                                                                        {% for level2namelist in level2namelists %}
+                                                                        <option value='{{ level2namelist.level2_path}}'>{{ level2namelist.name}}</option>
+                                                                        {% endfor %}
+                                                                    </select>
+                                                                </div>
+
+                                                                <button type="button" class="btn btn-primary btn-rounded btn-border btn-sm" onclick="app_folder2()"><i class="fa fa-cloud-download"></i>&nbsp添加</button>
+                                                            </form>
+                                                        </fieldset>
+                                                        </div><!--end col-->
+
+                                                    </div><!--end row-->
+                                                </div>
+
+                                                <div class="row" id="tab2_saveapply" style="display: none">
+                                                    <div class="col-md-12">
+                                                        <div class="table-responsive">
+                                                        <div class="portlet light bordered">
+                                                            <div class="portlet-body">
+                                                               <table class="table table-striped table-bordered table-hover  order-column" id="tab2_temptable">
+                                                                   <thead >
+                                                                    <tr >
+                                                                        <th>目录名称</th>
+                                                                        <th>目录路径</th>
+                                                                        <th>目录层级</th>
+                                                                        <th>操作</th>
+                                                                    </tr>
+                                                                   </thead>
+                                                                   <tbody id="tab2_showtable">
+                                                                   </tbody>
+                                                               </table>
+                                                            </div>
+                                                            <div align="center">
+                                                                <button  type="button" class="btn btn-primary btn-rounded btn-border btn-sm click" style=" width:300px;font-size: 18px" onclick="tab2_saveapplyinfo()">提交</button>
+                                                            </div>
+                                                        </div>
+                                                            </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div role="tabpanel" class="tab-pane" id="tab_del_folder3">
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                        <fieldset class="jquery-Ui-fieldset">
+                                                            <form role="form" class="form-inline">
+                                                                <div class="form-group">
+                                                                    <select id="tab3_level2id" class="selectpicker" data-hide-disabled="true" data-live-search="true">
+                                                                        <option value="-1" >请选择第二级目录</option>
+                                                                        {% for level2namelist in level2namelists %}
+                                                                        <option value='{{ level2namelist.level2_id}}'>{{ level2namelist.name}}</option>
+                                                                        {% endfor %}
+                                                                    </select>
+                                                                    <select id="tab3_level3id" class="selectpicker" data-hide-disabled="true" data-live-search="true">
+                                                                       <option value="-1" >请选择第三级目录</option>
+                                                                    </select>
+                                                                </div>
+                                                                <button type="button" class="btn btn-primary btn-rounded btn-border btn-sm" onclick="app_folder3()"><i class="fa fa-cloud-download"></i>&nbsp添加</button>
+                                                            </form>
+                                                            </fieldset>
+                                                        </div><!--end col-->
+
+                                                    </div><!--end row-->
+                                                </div>
+
+                                                <div class="row" id="tab3_saveapply" style="display: none">
+                                                    <div class="col-md-12">
+                                                        <div class="table-responsive">
+                                                        <div class="portlet light bordered">
+                                                            <div class="portlet-body">
+                                                               <table class="table table-striped table-bordered table-hover  order-column" id="tab3_temptable">
+                                                                   <thead >
+                                                                    <tr >
+                                                                        <th>目录名称</th>
+                                                                        <th>目录路径</th>
+                                                                        <th>目录层级</th>
+                                                                        <th>操作</th>
+                                                                    </tr>
+                                                                   </thead>
+                                                                   <tbody id="tab3_showtable">
+                                                                   </tbody>
+                                                               </table>
+                                                            </div>
+                                                            <div align="center">
+                                                                <button  type="button" class="btn btn-primary btn-rounded btn-border btn-sm click" style=" width:300px;font-size: 18px;"  onclick="tab3_saveapplyinfo()">提交</button>
+                                                            </div>
+                                                        </div>
+                                                            </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                    <!--end row-->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    <!--end page content-->
+    <!-- 模态框（Modal1） -->
+
+{% endblock %}
+
+{% block custom_js %}
+
+    <script src="/static/js/bootstrap-select.js"></script>
+    <script src="/static/js/bootstrap-table.min.js"></script>
+    <script src="/static/js/bootstrap-table-zh-CN.min.js"></script>
+    <script>
+
+$(".click").click(function(){
+    $(this).attr("disabled","disabled");
+});
+    function removeXss(str){
+    return str.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    var app_level1_path_list = []; //定义level1list 全局变量
+    function app_folder1() {
+        var tab1_level1id = $("#tab1_level1id option:selected").val();
+        var tab1_level1_name = $("#tab1_level1id option:selected").text();
+        if(tab1_level1id !="-1"){
+            tab1_level1id = tab1_level1id.split(',');
+            var tab1_level1_id= tab1_level1id[0]
+            var tab1_level1_path= tab1_level1id[1]
+            if ((app_level1_path_list.indexOf(tab1_level1_path) == -1)) {
+                document.getElementById("tab1_saveapply").style.display = "inline";
+                var newRow = "<tr><td>" +tab1_level1_name + "</td>" + "<td>" + tab1_level1_path + "</td>" + "<td>" + 1 + "</td>" + "<td>" + "<button type='" + "button'" + "class='" + "btn red btn-outline'" + "onclick='" + "deletapply(this)'" + ">" + "删除" + "</button></td></tr>"
+                $("#tab1_showtable").append(newRow);
+                app_level1_path_list.push(tab1_level1_path)
+            }
+
+        }else{
+            swal("请填写一层文件夹路径");
+        }
+    }
+    var app_level2_path_list = []; //定义level2list 全局变量
+    function app_folder2() {
+        var tab2_level1id = $("#tab2_level1id option:selected").val();
+        var tab2_level2_path = $("#tab2_level2id option:selected").val();
+        var tab2_level2_name = $("#tab2_level2id option:selected").text();
+        if(tab2_level2_name && tab2_level2_path!=-1 && tab2_level1id!=-1){
+            if (app_level2_path_list.indexOf(tab2_level2_path) == -1) {
+                document.getElementById("tab2_saveapply").style.display = "inline";
+                var newRow = "<tr><td>" +tab2_level2_name+ "</td>" + "<td>" + tab2_level2_path + "</td>" + "<td>" + 2 + "</td>" + "<td>" + "<button type='" + "button'" + "class='" + "btn red btn-outline'" + "onclick='" + "deletapply(this)'" + ">" + "删除" + "</button></td></tr>"
+                $("#tab2_showtable").append(newRow);
+                app_level2_path_list.push(tab2_level2_path)
+            }
+        }else{
+            swal("请填写完整");
+        }
+    }
+
+
+    $(document).ready(function(){
+            $("#tab3_level1id").change(function()
+            {
+                var level1id= $("#tab3_level1id").val();
+                if (level1id != -1){
+                    $.ajax({
+                        url:{% url "SearchRelationFromL" %},
+                        type:'POST',
+                        dataType:'json',
+                        data:{'level1id':level1id},
+                        success:function(data){
+                            if (data['isSuccess']){
+                                var level2_dict=data['message'];
+                                var $emplevel2 = $("#tab3_level2id")
+                                $emplevel2.empty();
+                                $emplevel2.append('<option value="-1" >请选择第二级目录</option>');
+                                var $emplevel3 = $("#tab3_level3id")
+                                $emplevel3.empty();
+                                $emplevel3.append('<option value="-1" >请选择第三级目录</option>');
+                                for(var i=0;i<level2_dict.length;i++){
+
+                                    var $newOption ="<option value='"+level2_dict[i]['level2_id']+"'>"+ level2_dict[i]['name']+"</option>";
+                                     $emplevel2.append($newOption);
+                                }
+                                $('#tab3_level2id').selectpicker('render');
+                                $('#tab3_level2id').selectpicker('refresh');
+                                $('#tab3_level3id').selectpicker('render');
+                                $('#tab3_level3id').selectpicker('refresh');
+                            }
+
+                        }
+                    });
+                }
+                else {
+                        var $tab3_level2id = $("#tab3_level2id")
+                        $tab3_level2id.empty();
+                        $tab3_level2id.append('<option value="-1" >请选择第二级目录</option>');
+                        $('#tab3_level2id').selectpicker('render');
+                        $('#tab3_level2id').selectpicker('refresh');
+                        var $emplevel3 = $("#tab3_level3id")
+                        $emplevel3.empty();
+                        $emplevel3.append('<option value="-1" >请选择第三级目录</option>');
+                        $('#tab3_level3id').selectpicker('render');
+                        $('#tab3_level3id').selectpicker('refresh');
+
+                }
+
+            });
+            $("#tab3_level2id").change(function(){
+                        var level2idinfo= $("#tab3_level2id").val();
+                if (level2idinfo != -1){
+                    $.ajax({
+                        url:{% url "level3info" %},
+                        type:'POST',
+                        dataType:'json',
+                        data:{'level2idinfo':level2idinfo},
+                        success:function(data){
+                            var aa=data['dict_level3'];
+                            var $emplevel3 = $("#tab3_level3id")
+                            $emplevel3.empty();
+                            $emplevel3.append('<option value="-1" >请选择第三级目录</option>');
+                            for(var i=0;i<aa.length;i++){
+                                var $newOption ="<option value='" +aa[i][2] +"'>"+ aa[i][1]+"</option>";
+                                 $emplevel3.append($newOption);
+                            }
+                            $('#tab3_level3id').selectpicker('render');
+                            $('#tab3_level3id').selectpicker('refresh');
+                        }
+                    });
+                }
+                else {
+                            var $emplevel3 = $("#tab3_level3id")
+                            $emplevel3.empty();
+                            $emplevel3.append('<option value="-1" >请选择第三级目录</option>');
+                            $('#tab3_level3id').selectpicker('render');
+                            $('#tab3_level3id').selectpicker('refresh');
+                }
+
+
+               });
+
+            $("#tab2_level1id").change(function()
+            {
+                var level1id= $("#tab2_level1id").val();
+                if (level1id != -1){
+                    $.ajax({
+                        url:{% url "SearchRelationFromL" %},
+                        type:'POST',
+                        dataType:'json',
+                        data:{'level1id':level1id},
+                        success:function(data){
+                            if (data['isSuccess']){
+                                var level2_dict=data['message'];
+                                var $emplevel2 = $("#tab2_level2id")
+                                $emplevel2.empty();
+                                $emplevel2.append('<option value="-1" >请选择第二级目录</option>');
+
+                                for(var i=0;i<level2_dict.length;i++){
+
+                                    var $newOption ="<option value='"+level2_dict[i]['level2_path']+"'>"+ level2_dict[i]['name']+"</option>";
+                                     $emplevel2.append($newOption);
+                                }
+                                $('#tab2_level2id').selectpicker('render');
+                                $('#tab2_level2id').selectpicker('refresh');
+                            }
+
+                        }
+                    });
+                }
+                else {
+                        var $tab3_level2id = $("#tab2_level2id")
+                        $tab3_level2id.empty();
+                        $tab3_level2id.append('<option value="-1" >请选择第二级目录</option>');
+                        $('#tab2_level2id').selectpicker('render');
+                        $('#tab2_level2id').selectpicker('refresh');
+                }
+
+            });
+        });
+
+
+    var app_level3_path_list = []; //定义level2list 全局变量
+    function app_folder3() {
+        var tab3_level1id = $("#tab3_level1id option:selected").val();
+        var tab3_level2id = $("#tab3_level2id option:selected").val();
+        var tab3_level3_path = $("#tab3_level3id option:selected").val();
+        var tab3_level3_name = $("#tab3_level2id option:selected").text();
+        if(tab3_level1id !=-1 && tab3_level2id!=-1 && tab3_level3_path!=-1){
+            if (app_level3_path_list.indexOf(tab3_level3_path) == -1) {
+                document.getElementById("tab3_saveapply").style.display = "inline";
+                var newRow = "<tr><td>" +tab3_level3_name+ "</td>" + "<td>" + tab3_level3_path + "</td>" + "<td>" + 3 + "</td>" + "<td>" + "<button type='" + "button'" + "class='" + "btn red btn-outline'" + "onclick='" + "deletapply(this)'" + ">" + "删除" + "</button></td></tr>"
+                $("#tab3_showtable").append(newRow);
+                app_level3_path_list.push(tab3_level3_path)
+            }
+
+        }else{
+            swal("请填写完整");
+        }
+    }
+    function deletapply(obj){
+            var tr=obj.parentNode.parentNode;
+            var onetr = tr.cells[1].innerHTML;  //取当前tr第2个值
+            var Directorylevel = tr.cells[2].innerHTML;  //取当前tr第3个值
+        if (Directorylevel==1){
+            lenonetrlist = app_level1_path_list.indexOf(onetr)
+                app_level1_path_list.splice(lenonetrlist,1) //z在全局level3_idlistss里面删除
+                var tbody=tr.parentNode;
+                tbody.removeChild(tr);
+                 if(tbody.rows.length==0) {
+                     document.getElementById("tab1_saveapply").style.display = "none";
+                }
+        }else if(Directorylevel==2){
+            lenonetrlist = app_level2_path_list.indexOf(onetr)
+                app_level2_path_list.splice(lenonetrlist,1) //z在全局level3_idlistss里面删除
+                var tbody=tr.parentNode;
+                tbody.removeChild(tr);
+                 if(tbody.rows.length==0) {
+                     document.getElementById("tab2_saveapply").style.display = "none";}
+        }else if(Directorylevel==3){
+            lenonetrlist = app_level3_path_list.indexOf(onetr)
+                app_level3_path_list.splice(lenonetrlist,1) //z在全局level3_idlistss里面删除
+                var tbody=tr.parentNode;
+                tbody.removeChild(tr);
+                 if(tbody.rows.length==0) {
+                     document.getElementById("tab3_saveapply").style.display = "none";}
+        }
+
+       }
+    function tab1_saveapplyinfo() {
+        if (app_level1_path_list){
+            $.ajax({
+                        url:{% url "delfolderlevel" %},
+                        type:'POST',
+                        dataType:'json',
+                        data:{'app_level_path_list':JSON.stringify(app_level1_path_list)},
+                        success:function(data){
+                            if (data['isSuccess']){
+                                    swal({
+                                        title:"删除成功",
+                                        text:'',
+                                        type:"success",
+                                        showConfirmButton:"true",
+                                        confirmButtonText:"好的",
+                                        animation:"slide-from-top"
+                                    },function () {
+                                        window.location.reload();
+                                    })
+                            }else {
+                                swal({
+                                        title:"删除失败",
+                                        text:'',
+                                        type:"error",
+                                        showConfirmButton:"true",
+                                        confirmButtonText:"好的",
+                                        animation:"slide-from-top"
+                                    },function () {
+                                        window.location.reload();
+                                    })
+                            }
+
+                        }
+                    });
+        }else {
+            swal("请传入参数");
+        }
+
+    }
+    function tab2_saveapplyinfo() {
+        if (app_level2_path_list){
+            $.ajax({
+                        url:{% url "delfolderlevel" %},
+                        type:'POST',
+                        dataType:'json',
+                        data:{'app_level_path_list':JSON.stringify(app_level2_path_list)},
+                        success:function(data){
+                            if (data['isSuccess']){
+                                    swal({
+                                        title:"删除成功",
+                                        text:'',
+                                        type:"success",
+                                        showConfirmButton:"true",
+                                        confirmButtonText:"好的",
+                                        animation:"slide-from-top"
+                                    },function () {
+                                        window.location.reload();
+                                    })
+                            }else {
+                                swal({
+                                        title:"删除失败",
+                                        text:'',
+                                        type:"error",
+                                        showConfirmButton:"true",
+                                        confirmButtonText:"好的",
+                                        animation:"slide-from-top"
+                                    },function () {
+                                        window.location.reload();
+                                    })
+                            }
+
+                        }
+                    });
+        }else {
+            swal("请传入参数");
+        }
+
+    }
+    function tab3_saveapplyinfo() {
+        if (app_level3_path_list){
+            $.ajax({
+                        url:{% url "delfolderlevel" %},
+                        type:'POST',
+                        dataType:'json',
+                        data:{'app_level_path_list':JSON.stringify(app_level3_path_list)},
+                        success:function(data){
+                            if (data['isSuccess']){
+                                swal({
+                                        title:"删除成功",
+                                        text:'',
+                                        type:"success",
+                                        showConfirmButton:"true",
+                                        confirmButtonText:"好的",
+                                        animation:"slide-from-top"
+                                    },function () {
+                                        window.location.reload();
+                                    })
+                            }
+                            else {
+                                swal({
+                                        title:"删除失败",
+                                        text:'',
+                                        type:"error",
+                                        showConfirmButton:"true",
+                                        confirmButtonText:"好的",
+                                        animation:"slide-from-top"
+                                    },function () {
+                                        window.location.reload();
+                                    })
+                            }
+                        }
+                    });
+        }else {
+            swal("请传入参数");
+        }
+
+    }
+    </script>
+
+{% endblock %}
